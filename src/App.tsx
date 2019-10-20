@@ -12,7 +12,7 @@ import { Router, navigate } from "@reach/router";
 
 import { useLocalStorage } from "./hooks";
 import Dashboard from "./components/Dashboard";
-
+console.log(process.env.NODE_ENV);
 const client = new ApolloClient({
   link: ApolloLink.from([
     onError(({ graphQLErrors, networkError }) => {
@@ -24,7 +24,9 @@ const client = new ApolloClient({
         );
       if (networkError) console.log(`[Network error]: ${networkError}`);
     }),
-    new HttpLink({ uri: "http://localhost:4000", credentials: "same-origin" }),
+    new HttpLink({
+      uri: "https://competition-prod.herokuapp.com/api",
+    }),
   ]),
   cache: new InMemoryCache(),
 });
