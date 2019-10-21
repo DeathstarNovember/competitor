@@ -31,6 +31,8 @@ export const getEntryGroupTotalPowerProduced = (entryGroup: Entry[]) =>
   entryGroup
     .map(entry => getEntryTotalPowerProduced(entry))
     .reduce((acc, curr) => acc + curr);
+export const getEntryGroupTotalDistance = (entryGroup: Entry[]) =>
+  entryGroup.map(entry => entry.distance).reduce((acc, curr) => acc + curr);
 
 export const getWeightCorrectionFactor = (entry: Entry) =>
   Math.pow((entry.userWeight * 2.2) / 270, 0.222);

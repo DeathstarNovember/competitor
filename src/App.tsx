@@ -12,6 +12,7 @@ import { Router, navigate } from "@reach/router";
 
 import { useLocalStorage } from "./hooks";
 import Dashboard from "./components/Dashboard";
+import { User } from "./types";
 console.log(process.env.NODE_ENV);
 const uri =
   process.env.NODE_ENV === "production"
@@ -70,8 +71,8 @@ const AppBar: React.FC<AppBarProps> = ({ currentUser, onSignOut }) => {
 };
 
 const App: React.FC = () => {
-  const [currentUser, setCurrentUser] = useLocalStorage("CURRENT_USER", "");
-
+  const [User, setCurrentUser] = useLocalStorage("CURRENT_USER", "");
+  const currentUser: User | "" = User;
   const handleSignOut = () => {
     setCurrentUser("");
   };
@@ -92,7 +93,9 @@ const App: React.FC = () => {
 
           <Router>
             <Login path="login" selectUser={setCurrentUser} />
-            <Dashboard path="/" currentUser={currentUser} />
+            {currentUser !== "" ? (
+              <Dashboard path="/" currentUser={currentUser} />
+            ) : null}
           </Router>
         </div>
       </ThemeProvider>

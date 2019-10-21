@@ -12,5 +12,6 @@ export {
   getWeightCorrectedPace,
   getWeightCorrectedEntryAvgPowerOutput,
   getWeightCorrectedEntryTotalPowerProduced,
+  getEntryGroupTotalDistance,
 } from "./calculations";
 export { LIST_USERS, LIST_ENTRIES, CREATE_ENTRY } from "./queries";
