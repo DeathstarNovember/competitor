@@ -6,6 +6,7 @@ export type User = {
 };
 
 export type Entry = {
+  id: number;
   user: User;
   userWeight: number;
   date: Date;

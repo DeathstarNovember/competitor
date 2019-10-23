@@ -14,4 +14,9 @@ export {
   getWeightCorrectedEntryTotalPowerProduced,
   getEntryGroupTotalDistance,
 } from "./calculations";
-export { LIST_USERS, LIST_ENTRIES, CREATE_ENTRY } from "./queries";
+export {
+  LIST_USERS,
+  LIST_ENTRIES,
+  CREATE_ENTRY,
+  DELETE_ENTRY,
+} from "./queries";

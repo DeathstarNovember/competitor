@@ -50,6 +50,12 @@ export const CREATE_ENTRY = gql`
   }
 `;
 
+export const DELETE_ENTRY = gql`
+  mutation deleteEntry($id: ID!) {
+    deleteEntry(id: $id)
+  }
+`;
+
 export const LIST_USERS = gql`
   {
     list_users {
