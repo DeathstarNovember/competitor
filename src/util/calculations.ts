@@ -60,3 +60,23 @@ export const getWeightCorrectedEntryTotalPowerProduced = (entry: Entry) =>
       getWeightCorrectedTime(entry)
     ).toFixed(0)
   );
+export type EntryCalculations = {
+  pace: number;
+  avgPowerOutput: number;
+  totalPower: number;
+  wcTime: number;
+  wcDistance: number;
+  wcPace: number;
+  wcAvgPowerOutput: number;
+  wcTotalPower: number;
+};
+export const entryCalculations = (entry: Entry) => ({
+  pace: getEntryPace(entry),
+  avgPowerOutput: getEntryAvgPowerOutput(entry),
+  totalPower: getEntryTotalPowerProduced(entry),
+  wcTime: getWeightCorrectedTime(entry),
+  wcDistance: getWeightCorrectedDistance(entry),
+  wcPace: getWeightCorrectedPace(entry),
+  wcAvgPowerOutput: getWeightCorrectedEntryAvgPowerOutput(entry),
+  wcTotalPower: getWeightCorrectedEntryTotalPowerProduced(entry),
+});

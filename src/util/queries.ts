@@ -49,6 +49,39 @@ export const CREATE_ENTRY = gql`
     }
   }
 `;
+export const UPDATE_ENTRY = gql`
+  mutation UpdateEntry(
+    $id: ID!
+    $userId: Int!
+    $time: Int!
+    $distance: Int!
+    $strokeRate: Int!
+    $userWeight: Float!
+    $completedAt: NaiveDateTime!
+  ) {
+    updateEntry(
+      id: $id
+      userId: $userId
+      time: $time
+      distance: $distance
+      strokeRate: $strokeRate
+      completedAt: $completedAt
+      userWeight: $userWeight
+    ) {
+      id
+      user {
+        id
+        firstName
+        lastName
+        currentWeight
+      }
+      time
+      distance
+      strokeRate
+      userWeight
+    }
+  }
+`;
 
 export const DELETE_ENTRY = gql`
   mutation deleteEntry($id: ID!) {
