@@ -35,14 +35,16 @@ const EntryPreview: React.FC<EntryProps> = ({ entry, entryId }) => {
     >
       <div className="flex justify-between">
         <div>{`${entry.user.firstName} ${entry.user.lastName[0]}.`}</div>
-        <div className="italic text-sm">
+        {/* <div className="italic text-sm">
           {`${format(new Date(entry.completedAt), "Pp")}`}
-        </div>
+        </div> */}
+        <div className="italic text-sm">{`${entry.userWeight}kg`}</div>
+        <button onClick={handleWcToggle}>
+          <MdFunctions
+            style={{ color: displayWeightCorrected ? "blue" : "black" }}
+          />
+        </button>
         <div className="flex">
-          <div className="italic text-sm">{`${entry.userWeight}kg`}</div>
-          <button onClick={handleWcToggle}>
-            <MdFunctions />
-          </button>
           <button onClick={handleFormToggle}>
             <MdEdit />
           </button>

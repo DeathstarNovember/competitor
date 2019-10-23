@@ -26,6 +26,7 @@
     "date-fns": "^2.4.1",
     "graphql": "^14.5.7",
     "graphql-tag": "^2.10.1",
+    "group-array": "^1.0.0",
     "js-yaml": "^3.13.1",
     "mem": "^4.0.0",
     "react": "^16.9.0",

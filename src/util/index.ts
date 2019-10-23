@@ -14,6 +14,10 @@ export {
   getWeightCorrectedEntryTotalPowerProduced,
   getEntryGroupTotalDistance,
   entryCalculations,
+  entryGroupCalculations,
+  getFarthestEntry,
+  getEntryGroupAverageDistance,
+  getFastestEntry,
 } from "./calculations";
 export {
   LIST_USERS,
@@ -22,3 +26,4 @@ export {
   UPDATE_ENTRY,
   DELETE_ENTRY,
 } from "./queries";
+export { sortAscByNumberProp, sortDescByNumberProp } from "./arrayUtils";

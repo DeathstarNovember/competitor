@@ -1,16 +1,12 @@
 import React from "react";
 import { Entry } from "../types";
-import {
-  getEntryGroupAvgPace,
-  getEntryGroupAvgPowerOutput,
-  getEntryGroupTotalPowerProduced,
-  getEntryGroupTotalDistance,
-} from "../util";
+import { entryGroupCalculations, getEntryPace } from "../util";
 import { format, parseISO } from "date-fns";
 type StatSummaryProps = {
   entries: Entry[];
 };
 const StatSummary: React.FC<StatSummaryProps> = ({ entries }) => {
+  const statSummary = entryGroupCalculations(entries);
   return (
     <div>
       <div className="ml-2 text-xl font-bold">
@@ -40,26 +36,30 @@ const StatSummary: React.FC<StatSummaryProps> = ({ entries }) => {
       <div className="flex justify-around p-2 ml-2 bg-blue-700 rounded-lg p-2 text-white">
         <div className="flex-column">
           <div className="font-bold">Total Dist</div>
-          <div className="font-bold">{`${getEntryGroupTotalDistance(
-            entries
-          )}m`}</div>
+          <div className="font-bold">{`${statSummary.totalDistance}m`}</div>
+        </div>
+        <div className="flex-column">
+          <div className="font-bold">Avg Dist</div>
+          <div className="font-bold">{`${statSummary.averageDistance}m`}</div>
         </div>
         <div className="flex-column">
           <div className="font-bold">Avg Spd</div>
-          <div className="font-bold">{`${getEntryGroupAvgPace(
-            entries
+          <div className="font-bold">{`${statSummary.avgPace}m/s`}</div>
+        </div>
+        <div className="flex-column">
+          <div className="font-bold">Fastest Spd</div>
+          <div className="font-bold">{`${getEntryPace(
+            statSummary.fastestEntry
           )}m/s`}</div>
         </div>
         <div className="flex-column">
           <div className="font-bold">Avg Pwr</div>
-          <div className="font-bold">{`${getEntryGroupAvgPowerOutput(
-            entries
-          )}W`}</div>
+          <div className="font-bold">{`${statSummary.avgPowerOutput}W`}</div>
         </div>
         <div className="flex-column">
           <div className="font-bold">Total Pwr</div>
           <div className="font-bold">{`${(
-            getEntryGroupTotalPowerProduced(entries) / 1000
+            statSummary.totalPowerProduced / 1000
           ).toFixed(2)}kJ`}</div>
         </div>
       </div>
