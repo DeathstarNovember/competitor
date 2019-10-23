@@ -7,7 +7,6 @@ import {
   getEntryGroupTotalDistance,
 } from "../util";
 import { format, parseISO } from "date-fns";
-import { parse } from "date-fns/esm";
 type StatSummaryProps = {
   entries: Entry[];
 };

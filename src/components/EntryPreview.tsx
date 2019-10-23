@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useMutation } from "@apollo/react-hooks";
 import { formatTimeMS, entryCalculations } from "../util";
 import { Entry } from "../types";
-import { DELETE_ENTRY, UPDATE_ENTRY } from "../util";
+import { DELETE_ENTRY } from "../util";
 import { format } from "date-fns/esm";
 import { MdDelete, MdEdit, MdFunctions } from "react-icons/md";
 import { EntryCalculations } from "../util/calculations";

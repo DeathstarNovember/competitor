@@ -3,7 +3,7 @@ import { useMutation } from "@apollo/react-hooks";
 import useForm from "react-hook-form";
 import { Entry } from "../types";
 import { parse, format, set, parseISO } from "date-fns";
-import { LIST_ENTRIES, UPDATE_ENTRY } from "../util";
+import { UPDATE_ENTRY } from "../util";
 
 type Props = {
   entry: Entry;

@@ -1,7 +1,6 @@
 import React from "react";
 import EntryPreview from "./EntryPreview";
 import { Entry } from "../types";
-import StatSummary from "./StatSummary";
 
 type UserEntryFeedProps = {
   entries: Entry[];

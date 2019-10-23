@@ -13,7 +13,7 @@ import { Router, navigate } from "@reach/router";
 import { useLocalStorage } from "./hooks";
 import Dashboard from "./components/Dashboard";
 import { User } from "./types";
-console.log(process.env.NODE_ENV);
+// console.log(process.env.NODE_ENV);
 const uri =
   process.env.NODE_ENV === "production"
     ? "https://competition-prod.herokuapp.com/api"
@@ -71,13 +71,13 @@ const AppBar: React.FC<AppBarProps> = ({ currentUser, onSignOut }) => {
 };
 
 const App: React.FC = () => {
-  const [User, setCurrentUser] = useLocalStorage("CURRENT_USER", "");
-  const currentUser: User | "" = User;
+  const [user, setCurrentUser] = useLocalStorage("CURRENT_USER", "");
+  const currentUser: User | "" = user;
   const handleSignOut = () => {
     setCurrentUser("");
   };
 
-  console.warn("App", { currentUser });
+  // console.warn("App", { currentUser });
 
   useEffect(() => {
     if (currentUser === "") {
