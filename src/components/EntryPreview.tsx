@@ -6,6 +6,7 @@ import { DELETE_ENTRY, UPDATE_ENTRY } from "../util";
 import { format } from "date-fns/esm";
 import { MdDelete, MdEdit, MdFunctions } from "react-icons/md";
 import { EntryCalculations } from "../util/calculations";
+import UpdateEntry from "./UpdateEntry";
 
 type EntryProps = {
   entry: Entry;
@@ -14,16 +15,17 @@ type EntryProps = {
 const EntryPreview: React.FC<EntryProps> = ({ entry, entryId }) => {
   const entryMetrics: EntryCalculations = entryCalculations(entry);
   const [deleteEntryMutation] = useMutation(DELETE_ENTRY);
-  const [updateEntryMutation] = useMutation(UPDATE_ENTRY);
   const [displayWeightCorrected, setDisplayWeightCorrected] = useState(false);
+  const [displayForm, setDisplayForm] = useState(false);
   const handleDelete = (id: number) => {
     deleteEntryMutation({ variables: { id } });
   };
-  const handleUpdate = (entry: Entry) => {
-    updateEntryMutation({ variables: entry });
-  };
+
   const handleWcToggle = () => {
     setDisplayWeightCorrected(!displayWeightCorrected);
+  };
+  const handleFormToggle = () => {
+    setDisplayForm(!displayForm);
   };
   return (
     <div
@@ -41,7 +43,7 @@ const EntryPreview: React.FC<EntryProps> = ({ entry, entryId }) => {
           <button onClick={handleWcToggle}>
             <MdFunctions />
           </button>
-          <button disabled onClick={() => handleUpdate(entry)}>
+          <button onClick={handleFormToggle}>
             <MdEdit />
           </button>
           <button onClick={() => handleDelete(entry.id)}>
@@ -51,7 +53,9 @@ const EntryPreview: React.FC<EntryProps> = ({ entry, entryId }) => {
       </div>
       <div className="flex justify-between">
         <div className="flex-column flex-1">
-          {displayWeightCorrected ? (
+          {displayForm ? (
+            <UpdateEntry entry={entry} />
+          ) : displayWeightCorrected ? (
             <div>
               <div className="flex-1 italic text-sm">Weight Corrected</div>
               <div className="flex justify-between">

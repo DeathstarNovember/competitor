@@ -1,79 +1,79 @@
 import React from "react";
 import { useMutation } from "@apollo/react-hooks";
 import useForm from "react-hook-form";
-import { User, Entry } from "../types";
-import { RouteComponentProps } from "@reach/router";
-import { parse, format, set } from "date-fns";
-import { LIST_ENTRIES, CREATE_ENTRY } from "../util";
+import { Entry } from "../types";
+import { parse, format, set, parseISO } from "date-fns";
+import { LIST_ENTRIES, UPDATE_ENTRY } from "../util";
 
 type Props = {
-  currentUser: User;
+  entry: Entry;
 };
 
-const CreateEntry: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
-  const [createEntryMutation] = useMutation(CREATE_ENTRY, {
-    update(cache, { data: { createEntryMutation } }) {
-      const entries: Entry[] = cache.readQuery({ query: LIST_ENTRIES }) || [];
-      cache.writeQuery({
-        query: LIST_ENTRIES,
-        data: { listEntries: entries.concat([createEntryMutation]) },
-      });
-    },
-  });
+type UpdateEntryFormValues = {
+  duration_h: number;
+  duration_m: number;
+  duration_s: number;
+  completed_time: string;
+  completed_date: string;
+  userWeight: number;
+  userId: number;
+  distance: number;
+  strokeRate: number;
+};
 
+const UpdateEntry: React.FC<Props> = ({ entry }) => {
+  const [updateEntryMutation] = useMutation(UPDATE_ENTRY);
+
+  console.warn({ entry });
   const { handleSubmit, register, errors } = useForm();
 
-  // console.warn({ currentUser });
-
   const onSubmit = async (values: any) => {
-    if (currentUser) {
-      // console.warn({ values });
+    console.warn({ values });
+    const time =
+      Number(values.duration_h) * 60 * 60 +
+      Number(values.duration_m) * 60 +
+      Number(values.duration_s);
 
-      const time =
-        Number(values.duration_h) * 60 * 60 +
-        Number(values.duration_m) * 60 +
-        Number(values.duration_s);
+    const completedDate = parse(
+      values.completed_date,
+      "MM/dd/yyyy",
+      new Date()
+    );
+    const completedTime = parse(values.completed_time, "HH:mm", new Date());
 
-      const completedDate = parse(
-        values.completed_date,
-        "MM/dd/yyyy",
-        new Date()
-      );
-      const completedTime = parse(values.completed_time, "HH:mm", new Date());
-
-      const completedAt = set(completedDate, {
+    const completedAt = format(
+      set(completedDate, {
         hours: completedTime.getHours(),
         minutes: completedTime.getMinutes(),
+      }),
+      "yyyy-MM-dd HH:mm:ss"
+    );
+
+    const userWeight = Number(values.userWeight);
+
+    const payload = {
+      id: `${entry.id}`,
+      userId: Number(entry.user.id),
+      distance: Number(values.distance),
+      strokeRate: Number(values.strokeRate),
+      time,
+      completedAt,
+      userWeight,
+    };
+
+    console.warn({ payload });
+
+    try {
+      const result = await updateEntryMutation({
+        variables: payload,
       });
-
-      const userWeight = currentUser.currentWeight;
-
-      const payload = {
-        userId: Number(currentUser.id),
-        time: Number(time),
-        distance: Number(values.distance),
-        strokeRate: Number(values.strokeRate),
-        completedAt: format(completedAt, "yyyy-MM-dd HH:mm:ss"),
-        userWeight,
-      };
-
-      // console.warn({ payload });
-
-      try {
-        const result = await createEntryMutation({
-          variables: payload,
-        });
-
-        console.warn({ result });
-      } catch (err) {
-        console.warn({ err });
-      }
-    } else {
-      console.error("No current user", currentUser);
+      console.warn({ result });
+    } catch (err) {
+      console.warn({ err });
     }
   };
 
-  console.warn({ errors });
+  // console.warn({ errors });
 
   return (
     <div className={"max-w-md mx-auto p-6"}>
@@ -85,13 +85,38 @@ const CreateEntry: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
           <div className="pb-4 flex">
             <div className="pr-2">
               <label
+                htmlFor="userWeight"
+                className="text-sm block font-bold pb-2"
+              >
+                Weight(kg)
+              </label>
+              <input
+                name="userWeight"
+                defaultValue={`${entry.userWeight}`}
+                ref={register({
+                  required: "Required",
+                  pattern: {
+                    value: /^[1-9][0-9]+[.][0-9]$/i,
+                    message: "ex 0.0",
+                  },
+                })}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300 "
+                placeholder="Weight in Kilograms"
+              />
+              {errors.userWeight && errors.userWeight.message}
+            </div>
+          </div>
+          <div className="pb-4 flex">
+            <div className="pr-2">
+              <label
                 htmlFor="distance"
                 className="text-sm block font-bold pb-2"
               >
-                Distance in Meters
+                Distance
               </label>
               <input
                 name="distance"
+                defaultValue={`${entry.distance}`}
                 ref={register({
                   required: "Required",
                   pattern: {
@@ -109,10 +134,11 @@ const CreateEntry: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
                 htmlFor="strokeRate"
                 className="text-sm block font-bold pb-2"
               >
-                Avg Stroke Rate
+                Stroke Rate
               </label>
               <input
                 name="strokeRate"
+                defaultValue={`${entry.strokeRate}`}
                 ref={register({
                   required: "Required",
                   pattern: {
@@ -137,18 +163,21 @@ const CreateEntry: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
             <div className="flex">
               <input
                 name="duration_h"
+                defaultValue={(entry.time / 60 / 60).toFixed(0)}
                 ref={register({})}
                 className="shadow appearance-none border rounded w-full mr-2 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300"
                 placeholder="0 Hours"
               />
               <input
                 name="duration_m"
+                defaultValue={(entry.time / 60).toFixed(0)}
                 ref={register({})}
                 className="shadow appearance-none border rounded w-full mr-2 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300"
                 placeholder="Minutes"
               />
               <input
                 name="duration_s"
+                defaultValue={(entry.time % 60).toFixed(0)}
                 ref={register({})}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300"
                 placeholder="Seconds"
@@ -161,10 +190,11 @@ const CreateEntry: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
                 htmlFor="completed_date"
                 className="text-sm block font-bold pb-2"
               >
-                Completed Date
+                Date
               </label>
               <input
                 name="completed_date"
+                defaultValue={format(parseISO(entry.completedAt), "MM/dd/yyyy")}
                 ref={register({
                   required: "Required",
                   pattern: {
@@ -172,7 +202,6 @@ const CreateEntry: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
                     message: "MM/DD/YYYY PLS",
                   },
                 })}
-                defaultValue={format(new Date(), "MM/dd/yyyy")}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300"
                 placeholder="MM/DD/YYYY"
               />
@@ -187,7 +216,7 @@ const CreateEntry: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
               <input
                 name="completed_time"
                 ref={register({})}
-                defaultValue={format(new Date(), "HH:mm")}
+                defaultValue={format(parseISO(entry.completedAt), "HH:mm")}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300"
                 placeholder="HH:MM"
               />
@@ -198,7 +227,7 @@ const CreateEntry: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               type="submit"
             >
-              Log Entry
+              Update Entry
             </button>
           </div>
         </form>
@@ -207,4 +236,4 @@ const CreateEntry: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
   );
 };
 
-export default CreateEntry;
+export default UpdateEntry;

@@ -9,11 +9,10 @@ export type Entry = {
   id: number;
   user: User;
   userWeight: number;
-  date: Date;
   distance: number;
   time: number;
   strokeRate: number;
-  completedAt: Date;
+  completedAt: string;
 };
 
 // type Result = {
