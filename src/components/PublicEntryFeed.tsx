@@ -1,7 +1,6 @@
 import React from "react";
 import EntryPreview from "./EntryPreview";
 import { Entry } from "../types";
-import groupArray from "group-array";
 
 type PublicEntryFeedProps = {
   entries: Entry[];
