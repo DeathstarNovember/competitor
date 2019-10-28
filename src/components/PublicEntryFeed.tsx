@@ -9,7 +9,10 @@ type PublicEntryFeedProps = {
 
 const groupEntriesByDate = (arr: Entry[]) => {
   return arr.reduce((groups: { [key: string]: Entry[] }, item) => {
-    const groupName = `${new Date(item.completedAt).getMonth()}-${new Date(
+    const groupName = `${(new Date(item.completedAt).getMonth() + 1 < 10
+      ? "0"
+      : "") +
+      (new Date(item.completedAt).getMonth() + 1)}-${new Date(
       item.completedAt
     ).getDate()}`;
     groups[groupName] = groups[groupName] || [];
@@ -42,15 +45,18 @@ const PublicEntryFeed: React.FC<PublicEntryFeedProps> = ({ entries }) => {
           );
           return (
             <div key={dateKey}>
-              <div className="flex-1 bg-blue-400 rounded-lg p-2 mb-1 text-l">
+              {/* <div className="flex-1 bg-blue-400 rounded-lg p-2 mb-1 text-l">
                 {dateKey}
-              </div>
+              </div> */}
               {Object.keys(userGroupedEntries).map((userKey: string) => (
-                <div key={`${userKey}${dateKey}`}>
+                <div
+                  key={`${userKey}${dateKey}`}
+                  className="bg-blue-200 rounded-lg mb-2"
+                >
                   <div>
-                    <div className="bg-blue-200 rounded-lg p-2 m-1">
+                    {/* <div className="bg-blue-200 rounded-lg p-2 m-1">
                       {userKey.replace(/_/, " ")}
-                    </div>
+                    </div> */}
                     {userGroupedEntries[userKey].map(
                       (entry: Entry, entryId: number) => (
                         <EntryPreview

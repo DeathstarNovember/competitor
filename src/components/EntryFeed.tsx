@@ -17,7 +17,7 @@ const EntryFeed: React.FC<EntryFeedProps> = ({ currentUser, entryList }) => {
 
   if (!entryList.length) {
     return (
-      <div className={"max-w-md mx-auto p-6"}>
+      <div className="max-w-md mx-auto p-6">
         <div className="w-full max-w-md">
           <div className="p-6 bg-white rounded-lg shadow-xl ">
             No entries yet...

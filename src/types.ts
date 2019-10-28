@@ -2,17 +2,22 @@ export type User = {
   id: number;
   firstName: string;
   lastName: string;
+  bioSex: string;
   currentWeight: number;
+  currentHeight: number;
 };
 
 export type Entry = {
   id: number;
   user: User;
   userWeight: number;
+  userHeight: number;
   distance: number;
   time: number;
   strokeRate: number;
   completedAt: string;
+  maxHr?: number;
+  avgHr?: number;
 };
 
 // type Result = {

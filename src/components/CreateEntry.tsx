@@ -47,7 +47,10 @@ const CreateEntry: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
       });
 
       const userWeight = currentUser.currentWeight;
-
+      const userHeight = currentUser.currentHeight;
+      // const hrInfo: { maxHr?: number; avgHr?: number } = {};
+      // if (values.maxHr) hrInfo["maxHr"] = values.maxHr;
+      // if (values.avgHr) hrInfo["avgHr"] = values.avgHr;
       const payload = {
         userId: Number(currentUser.id),
         time: Number(time),
@@ -55,9 +58,13 @@ const CreateEntry: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
         strokeRate: Number(values.strokeRate),
         completedAt: format(completedAt, "yyyy-MM-dd HH:mm:ss"),
         userWeight,
+        userHeight,
+        // ...hrInfo,
+        maxHr: Number(values.maxHr),
+        avgHr: Number(values.avgHr),
       };
 
-      // console.warn({ payload });
+      console.warn({ payload });
 
       try {
         const result = await createEntryMutation({
@@ -122,6 +129,43 @@ const CreateEntry: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
                 })}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300 "
                 placeholder="(Like 26)"
+              />
+            </div>
+          </div>
+          <div className="pb-4 flex">
+            <div className="pr-2">
+              <label htmlFor="avgHr" className="text-sm block font-bold pb-2">
+                Avg HR
+              </label>
+              <input
+                name="avgHr"
+                ref={register({
+                  required: "Required",
+                  pattern: {
+                    value: /^[1-9][0-9]+$/i,
+                    message: "Numbers only PLS",
+                  },
+                })}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300 "
+                placeholder="Avg HR"
+              />
+              {errors.avgHr && errors.avgHr.message}
+            </div>
+            <div className="">
+              <label htmlFor="maxHr" className="text-sm block font-bold pb-2">
+                Max HR
+              </label>
+              <input
+                name="maxHr"
+                ref={register({
+                  required: "Required",
+                  pattern: {
+                    value: /^[1-9][0-9]+$/i,
+                    message: "Numbers only PLS",
+                  },
+                })}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300 "
+                placeholder="Max HR"
               />
             </div>
           </div>

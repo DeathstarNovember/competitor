@@ -7,13 +7,18 @@ export const LIST_ENTRIES = gql`
         id
         firstName
         lastName
+        bioSex
         currentWeight
+        currentHeight
       }
       userWeight
+      userHeight
       distance
       time
       strokeRate
       completedAt
+      maxHr
+      avgHr
     }
   }
 `;
@@ -25,7 +30,10 @@ export const CREATE_ENTRY = gql`
     $distance: Int!
     $strokeRate: Int!
     $userWeight: Float!
+    $userHeight: Int!
     $completedAt: NaiveDateTime!
+    $maxHr: Int
+    $avgHr: Int
   ) {
     createEntry(
       userId: $userId
@@ -34,18 +42,26 @@ export const CREATE_ENTRY = gql`
       strokeRate: $strokeRate
       completedAt: $completedAt
       userWeight: $userWeight
+      userHeight: $userHeight
+      maxHr: $maxHr
+      avgHr: $avgHr
     ) {
       id
       user {
         id
         firstName
         lastName
+        bioSex
         currentWeight
+        currentHeight
       }
       time
       distance
       strokeRate
       userWeight
+      userHeight
+      maxHr
+      avgHr
     }
   }
 `;
@@ -57,7 +73,10 @@ export const UPDATE_ENTRY = gql`
     $distance: Int!
     $strokeRate: Int!
     $userWeight: Float!
+    $userHeight: Int!
     $completedAt: NaiveDateTime!
+    $maxHr: Int
+    $avgHr: Int
   ) {
     updateEntry(
       id: $id
@@ -67,18 +86,26 @@ export const UPDATE_ENTRY = gql`
       strokeRate: $strokeRate
       completedAt: $completedAt
       userWeight: $userWeight
+      userHeight: $userHeight
+      maxHr: $maxHr
+      avgHr: $avgHr
     ) {
       id
       user {
         id
         firstName
         lastName
+        bioSex
         currentWeight
+        currentHeight
       }
       time
       distance
       strokeRate
       userWeight
+      userHeight
+      maxHr
+      avgHr
     }
   }
 `;
@@ -95,7 +122,9 @@ export const LIST_USERS = gql`
       id
       firstName
       lastName
+      bioSex
       currentWeight
+      currentHeight
     }
   }
 `;

@@ -19,6 +19,8 @@ type UpdateEntryFormValues = {
   userId: number;
   distance: number;
   strokeRate: number;
+  maxHr: number;
+  avgHr: number;
 };
 
 const UpdateEntry: React.FC<Props> = ({ entry }) => {
@@ -50,6 +52,7 @@ const UpdateEntry: React.FC<Props> = ({ entry }) => {
     );
 
     const userWeight = Number(values.userWeight);
+    const userHeight = Number(values.userHeight);
 
     const payload = {
       id: `${entry.id}`,
@@ -59,6 +62,9 @@ const UpdateEntry: React.FC<Props> = ({ entry }) => {
       time,
       completedAt,
       userWeight,
+      userHeight,
+      maxHr: Number(values.maxHr),
+      avgHr: Number(values.avgHr),
     };
 
     console.warn({ payload });
@@ -105,6 +111,28 @@ const UpdateEntry: React.FC<Props> = ({ entry }) => {
               />
               {errors.userWeight && errors.userWeight.message}
             </div>
+            <div className="pr-2">
+              <label
+                htmlFor="userHeight"
+                className="text-sm block font-bold pb-2"
+              >
+                Height(cm)
+              </label>
+              <input
+                name="userHeight"
+                defaultValue={`${entry.userHeight}`}
+                ref={register({
+                  required: "Required",
+                  pattern: {
+                    value: /^[1-9][0-9]+[.][0-9]$/i,
+                    message: "ex 0.0",
+                  },
+                })}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300 "
+                placeholder="Height in cm"
+              />
+              {errors.userHeight && errors.userHeight.message}
+            </div>
           </div>
           <div className="pb-4 flex">
             <div className="pr-2">
@@ -149,6 +177,46 @@ const UpdateEntry: React.FC<Props> = ({ entry }) => {
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300 "
                 placeholder="(Like 26)"
               />
+            </div>
+          </div>
+          <div className="pb-4 flex">
+            <div className="pr-2">
+              <label htmlFor="maxHr" className="text-sm block font-bold pb-2">
+                Max HR
+              </label>
+              <input
+                name="maxHr"
+                defaultValue={`${entry.maxHr}`}
+                ref={register({
+                  required: "Required",
+                  pattern: {
+                    value: /^[1-9][0-9]+[.][0-9]$/i,
+                    message: "ex 0.0",
+                  },
+                })}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300 "
+                placeholder="Max HR"
+              />
+              {errors.maxHr && errors.maxHr.message}
+            </div>
+            <div className="pr-2">
+              <label htmlFor="avgHr" className="text-sm block font-bold pb-2">
+                Avg HR
+              </label>
+              <input
+                name="avgHr"
+                defaultValue={`${entry.avgHr}`}
+                ref={register({
+                  required: "Required",
+                  pattern: {
+                    value: /^[1-9][0-9]+[.][0-9]$/i,
+                    message: "ex 0.0",
+                  },
+                })}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300 "
+                placeholder="Avg HR"
+              />
+              {errors.avgHr && errors.avgHr.message}
             </div>
           </div>
           <div className="pb-4">
