@@ -14,10 +14,8 @@ import { useLocalStorage } from "./hooks";
 import Dashboard from "./components/Dashboard";
 import { User } from "./types";
 // console.log(process.env.NODE_ENV);
-const uri =
-  process.env.NODE_ENV === "production"
-    ? "https://competition-prod.herokuapp.com/api"
-    : "http://localhost:4000/api";
+const uri = "https://competition-prod.herokuapp.com/api";
+// "http://localhost:4000/api";
 const client = new ApolloClient({
   link: ApolloLink.from([
     onError(({ graphQLErrors, networkError }) => {
