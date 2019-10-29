@@ -1,7 +1,7 @@
 import React from "react";
 import { useMutation } from "@apollo/react-hooks";
 import useForm from "react-hook-form";
-import { parse, format, parseISO } from "date-fns";
+import { parse, format } from "date-fns";
 import { UPDATE_USER } from "../util";
 import { User } from "../types";
 import { navigate } from "@reach/router";
@@ -137,10 +137,7 @@ const UpdateUser: React.FC<Props> = ({ user }) => {
                       message: "MM/DD/YYYY PLS",
                     },
                   })}
-                  defaultValue={format(
-                    parseISO(String(user.dob)),
-                    "MM/dd/yyyy"
-                  )}
+                  defaultValue={format(new Date(user.dob), "MM/dd/yyyy")}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300"
                   placeholder="MM/DD/YYYY"
                 />
