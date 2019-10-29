@@ -8,6 +8,7 @@ import { ApolloProvider } from "@apollo/react-hooks";
 import { ThemeProvider } from "styled-components";
 import { theme } from "./ui";
 import Login from "./components/Login";
+import { default as UpdateUserProfile } from "./components/UpdateUser";
 import { Router, navigate } from "@reach/router";
 
 import { useLocalStorage } from "./hooks";
@@ -46,7 +47,10 @@ const AppBar: React.FC<AppBarProps> = ({ currentUser, onSignOut }) => {
         {currentUser ? (
           <>
             <div className="text-gray-200 pr-2">Signed in as:</div>
-            <div>
+            <div
+              className="cursor-pointer"
+              onClick={() => navigate("update_profile")}
+            >
               {currentUser.firstName} {currentUser.lastName}
             </div>
           </>
@@ -93,6 +97,9 @@ const App: React.FC = () => {
             <Login path="login" selectUser={setCurrentUser} />
             {currentUser ? (
               <Dashboard path="/" currentUser={currentUser} />
+            ) : null}
+            {currentUser ? (
+              <UpdateUserProfile path="update_profile" user={currentUser} />
             ) : null}
           </Router>
         </div>

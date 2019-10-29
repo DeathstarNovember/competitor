@@ -24,19 +24,21 @@ const ChooseMyself: React.FC<ChooseProps> = ({ onSelect }) => {
       </div>
     );
   }
-  // console.warn({ data });
+  console.warn({ data });
   return (
     <div className="p-6 bg-white rounded-lg shadow-xl">
-      {data.list_users.map((user: User, userId: number) => (
-        <div
-          key={userId}
-          onClick={() => onSelect(user)}
-          className="p-2 border-b last:border-b-0 border-color-gray-700
+      {data
+        ? data.list_users.map((user: User, userId: number) => (
+            <div
+              key={userId}
+              onClick={() => onSelect(user)}
+              className="p-2 border-b last:border-b-0 border-color-gray-700
           hover:bg-gray-200 cursor-pointer"
-        >
-          {user.firstName}
-        </div>
-      ))}
+            >
+              {user.firstName}
+            </div>
+          ))
+        : null}
     </div>
   );
 };

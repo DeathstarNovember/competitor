@@ -2,9 +2,14 @@ export type User = {
   id: number;
   firstName: string;
   lastName: string;
+  email: string;
+  dob: Date;
+  username: string;
   bioSex: string;
   currentWeight: number;
   currentHeight: number;
+  warCry: string;
+  biology: string;
 };
 
 export type Entry = {

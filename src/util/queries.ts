@@ -102,6 +102,44 @@ export const CREATE_USER = gql`
   }
 `;
 
+export const UPDATE_USER = gql`
+  mutation UpdateUser(
+    $id: ID!
+    $dob: NaiveDateTime!
+    $email: String!
+    $firstName: String!
+    $lastName: String!
+    $bioSex: String!
+    $username: String!
+    $warCry: String!
+    $currentWeight: Float!
+    $currentHeight: Int!
+  ) {
+    updateUser(
+      id: $id
+      dob: $dob
+      email: $email
+      firstName: $firstName
+      lastName: $lastName
+      bioSex: $bioSex
+      username: $username
+      warCry: $warCry
+      currentWeight: $currentWeight
+      currentHeight: $currentHeight
+    ) {
+      id
+      firstName
+      lastName
+      bioSex
+      email
+      username
+      warCry
+      currentWeight
+      currentHeight
+    }
+  }
+`;
+
 export const UPDATE_ENTRY = gql`
   mutation UpdateEntry(
     $id: ID!
@@ -153,13 +191,34 @@ export const DELETE_ENTRY = gql`
   }
 `;
 
+export const GET_USER = gql`
+  query getUser($id: ID!) {
+    getUser(id: $id) {
+      id
+      firstName
+      lastName
+      dob
+      bioSex
+      email
+      username
+      warCry
+      currentWeight
+      currentHeight
+    }
+  }
+`;
+
 export const LIST_USERS = gql`
   {
     list_users {
       id
       firstName
       lastName
+      dob
       bioSex
+      email
+      username
+      warCry
       currentWeight
       currentHeight
     }
