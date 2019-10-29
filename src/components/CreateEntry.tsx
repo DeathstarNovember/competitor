@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useMutation } from "@apollo/react-hooks";
 import useForm from "react-hook-form";
 import { User, Entry } from "../types";
@@ -11,6 +11,7 @@ type Props = {
 };
 
 const CreateEntry: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
+  const [displayCreateEntryForm, setDisplayCreateEntryForm] = useState(false);
   const [createEntryMutation] = useMutation(CREATE_ENTRY, {
     update(cache, { data: { createEntryMutation } }) {
       const entries: Entry[] = cache.readQuery({ query: LIST_ENTRIES }) || [];
@@ -70,7 +71,7 @@ const CreateEntry: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
         const result = await createEntryMutation({
           variables: payload,
         });
-
+        setDisplayCreateEntryForm(false);
         console.warn({ result });
       } catch (err) {
         console.warn({ err });
@@ -83,170 +84,190 @@ const CreateEntry: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
   console.warn({ errors });
 
   return (
-    <div className={"max-w-md mx-auto p-6"}>
-      <div className="w-full max-w-md">
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="bg-white shadow-md rounded px-8 py-8 pt-8"
-        >
-          <div className="pb-4 flex">
-            <div className="pr-2">
-              <label
-                htmlFor="distance"
-                className="text-sm block font-bold pb-2"
-              >
-                Distance in Meters
-              </label>
-              <input
-                name="distance"
-                ref={register({
-                  required: "Required",
-                  pattern: {
-                    value: /^[1-9][0-9]+$/i,
-                    message: "Numbers only PLS",
-                  },
-                })}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300 "
-                placeholder="Distance in Meters"
-              />
-              {errors.distance && errors.distance.message}
-            </div>
-            <div className="">
-              <label
-                htmlFor="strokeRate"
-                className="text-sm block font-bold pb-2"
-              >
-                Avg Stroke Rate
-              </label>
-              <input
-                name="strokeRate"
-                ref={register({
-                  required: "Required",
-                  pattern: {
-                    value: /^[1-9][0-9]+$/i,
-                    message: "Numbers only PLS",
-                  },
-                })}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300 "
-                placeholder="(Like 26)"
-              />
-            </div>
-          </div>
-          <div className="pb-4 flex">
-            <div className="pr-2">
-              <label htmlFor="avgHr" className="text-sm block font-bold pb-2">
-                Avg HR
-              </label>
-              <input
-                name="avgHr"
-                ref={register({
-                  required: "Required",
-                  pattern: {
-                    value: /^[1-9][0-9]+$/i,
-                    message: "Numbers only PLS",
-                  },
-                })}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300 "
-                placeholder="Avg HR"
-              />
-              {errors.avgHr && errors.avgHr.message}
-            </div>
-            <div className="">
-              <label htmlFor="maxHr" className="text-sm block font-bold pb-2">
-                Max HR
-              </label>
-              <input
-                name="maxHr"
-                ref={register({
-                  required: "Required",
-                  pattern: {
-                    value: /^[1-9][0-9]+$/i,
-                    message: "Numbers only PLS",
-                  },
-                })}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300 "
-                placeholder="Max HR"
-              />
-            </div>
-          </div>
-          <div className="pb-4">
-            <div>
-              <label
-                htmlFor="duration"
-                className="text-sm block font-bold pb-2"
-              >
-                Duration
-              </label>
+    <div className={"max-w-md mx-auto"}>
+      {displayCreateEntryForm ? (
+        <div className="w-full max-w-md">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="bg-white shadow-md rounded px-8 py-8 pt-8"
+          >
+            <div className="pb-4 flex">
+              <div className="pr-2">
+                {/* <label
+                  htmlFor="distance"
+                  className="text-sm block font-bold pb-2"
+                >
+                  Distance in Meters
+                </label> */}
+                <input
+                  name="distance"
+                  ref={register({
+                    required: "Required",
+                    pattern: {
+                      value: /^[1-9][0-9]+$/i,
+                      message: "Numbers only PLS",
+                    },
+                  })}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300 "
+                  placeholder="distance (m)"
+                />
+                {errors.distance && errors.distance.message}
+              </div>
+              <div className="">
+                {/* <label
+                  htmlFor="strokeRate"
+                  className="text-sm block font-bold pb-2"
+                >
+                  Avg Stroke Rate
+                </label> */}
+                <input
+                  name="strokeRate"
+                  ref={register({
+                    required: "Required",
+                    pattern: {
+                      value: /^[1-9][0-9]+$/i,
+                      message: "Numbers only PLS",
+                    },
+                  })}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300 "
+                  placeholder="stroke rate (s/m)"
+                />
+              </div>
             </div>
             <div className="flex">
               <input
                 name="duration_h"
                 ref={register({})}
                 className="shadow appearance-none border rounded w-full mr-2 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300"
-                placeholder="0 Hours"
+                placeholder="hh"
               />
               <input
                 name="duration_m"
                 ref={register({})}
                 className="shadow appearance-none border rounded w-full mr-2 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300"
-                placeholder="Minutes"
+                placeholder="mm"
               />
               <input
                 name="duration_s"
                 ref={register({})}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300"
-                placeholder="Seconds"
+                placeholder="ss"
               />
             </div>
-          </div>
-          <div className="pb-4 flex">
-            <div className="pr-2">
-              <label
-                htmlFor="completed_date"
-                className="text-sm block font-bold pb-2"
+
+            <div className="pb-4 flex mt-4">
+              <div className="pr-2">
+                {/* <label htmlFor="avgHr" className="text-sm block font-bold pb-2">
+                  Avg HR
+                </label> */}
+                <input
+                  name="avgHr"
+                  ref={register({
+                    required: "Required",
+                    pattern: {
+                      value: /^[1-9][0-9]+$/i,
+                      message: "Numbers only PLS",
+                    },
+                  })}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300 "
+                  placeholder="Avg HR"
+                />
+                {errors.avgHr && errors.avgHr.message}
+              </div>
+              <div className="">
+                {/* <label htmlFor="maxHr" className="text-sm block font-bold pb-2">
+                  Max HR
+                </label> */}
+                <input
+                  name="maxHr"
+                  ref={register({
+                    required: "Required",
+                    pattern: {
+                      value: /^[1-9][0-9]+$/i,
+                      message: "Numbers only PLS",
+                    },
+                  })}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300 "
+                  placeholder="Max HR"
+                />
+              </div>
+            </div>
+            {/* <div className="pb-4">
+              <div>
+                <label
+                  htmlFor="duration"
+                  className="text-sm block font-bold pb-2"
+                >
+                  Duration
+                </label>
+              </div>
+            </div> */}
+            <div className="pb-4 flex">
+              <div className="pr-2">
+                <label
+                  htmlFor="completed_date"
+                  className="text-sm block font-bold pb-2"
+                >
+                  Completed On
+                </label>
+                <input
+                  name="completed_date"
+                  ref={register({
+                    required: "Required",
+                    pattern: {
+                      value: /^(0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])[- /.](19|20)\d\d$/i,
+                      message: "MM/DD/YYYY PLS",
+                    },
+                  })}
+                  defaultValue={format(new Date(), "MM/dd/yyyy")}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300"
+                  placeholder="MM/DD/YYYY"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="completed_time"
+                  className="text-sm block font-bold pb-2"
+                >
+                  hh:mm
+                </label>
+                <input
+                  name="completed_time"
+                  ref={register({})}
+                  defaultValue={format(new Date(), "HH:mm")}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300"
+                  placeholder="HH:MM"
+                />
+              </div>
+            </div>
+            <div className="flex justify-between">
+              <button
+                className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                type="submit"
               >
-                Completed Date
-              </label>
-              <input
-                name="completed_date"
-                ref={register({
-                  required: "Required",
-                  pattern: {
-                    value: /^(0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])[- /.](19|20)\d\d$/i,
-                    message: "MM/DD/YYYY PLS",
-                  },
-                })}
-                defaultValue={format(new Date(), "MM/dd/yyyy")}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300"
-                placeholder="MM/DD/YYYY"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="completed_time"
-                className="text-sm block font-bold pb-2"
+                Log Entry
+              </button>
+              <button
+                className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                onClick={() => setDisplayCreateEntryForm(false)}
               >
-                Time
-              </label>
-              <input
-                name="completed_time"
-                ref={register({})}
-                defaultValue={format(new Date(), "HH:mm")}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300"
-                placeholder="HH:MM"
-              />
+                close
+              </button>
             </div>
-          </div>
-          <div>
+          </form>
+        </div>
+      ) : (
+        <div>
+          <div className="bg-white shadow-md rounded px-4 py-4">
             <button
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              type="submit"
+              onClick={() => setDisplayCreateEntryForm(true)}
             >
               Log Entry
             </button>
           </div>
-        </form>
-      </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import React from "react";
 import { useMutation } from "@apollo/react-hooks";
 import useForm from "react-hook-form";
-import { parse, format } from "date-fns";
+import { parse } from "date-fns";
 import { UPDATE_USER } from "../util";
 import { User } from "../types";
 import { navigate } from "@reach/router";
