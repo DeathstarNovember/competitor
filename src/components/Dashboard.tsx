@@ -34,9 +34,11 @@ const Dashboard: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
 
   return (
     <div className={"p-6"}>
-      <StatSummary entries={myEntries} />
+      {myEntries.length ? <StatSummary entries={myEntries} /> : null}
       <CreateEntry currentUser={currentUser} />
-      <EntryFeed currentUser={currentUser} entryList={allEntries} />
+      {allEntries.length ? (
+        <EntryFeed currentUser={currentUser} entryList={allEntries} />
+      ) : null}
     </div>
   );
 };
