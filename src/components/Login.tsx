@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { useQuery } from "@apollo/react-hooks";
 
 import { RouteComponentProps, navigate } from "@reach/router";
 import { User } from "../types";
 import { LIST_USERS } from "../util";
+import CreateUser from "./CreateUser";
 
 type ChooseProps = {
   onSelect: (user: User) => void;
@@ -55,10 +56,25 @@ const Login: React.FC<RouteComponentProps<Props>> = ({ selectUser }) => {
       navigate("/");
     }
   };
+  const [displayUserForm, setDisplayUserForm] = useState(false);
 
   return (
     <div className={"max-w-sm mx-auto p-6"}>
-      <ChooseMyself onSelect={handleSelect} />
+      {displayUserForm ? (
+        <CreateUser setDisplayUserForm={setDisplayUserForm} />
+      ) : (
+        <ChooseMyself onSelect={handleSelect} />
+      )}
+      {!displayUserForm ? (
+        <div className="flex justify-around mt-2">
+          <button
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            onClick={() => setDisplayUserForm(!displayUserForm)}
+          >
+            Sign Up!
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 };

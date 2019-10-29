@@ -91,7 +91,7 @@ const App: React.FC = () => {
 
           <Router>
             <Login path="login" selectUser={setCurrentUser} />
-            {currentUser !== "" ? (
+            {currentUser ? (
               <Dashboard path="/" currentUser={currentUser} />
             ) : null}
           </Router>

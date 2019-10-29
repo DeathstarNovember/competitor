@@ -65,6 +65,43 @@ export const CREATE_ENTRY = gql`
     }
   }
 `;
+
+export const CREATE_USER = gql`
+  mutation CreateUser(
+    $dob: NaiveDateTime!
+    $email: String!
+    $firstName: String!
+    $lastName: String!
+    $bioSex: String!
+    $username: String!
+    $warCry: String!
+    $currentWeight: Float!
+    $currentHeight: Int!
+  ) {
+    createUser(
+      dob: $dob
+      email: $email
+      firstName: $firstName
+      lastName: $lastName
+      bioSex: $bioSex
+      username: $username
+      warCry: $warCry
+      currentWeight: $currentWeight
+      currentHeight: $currentHeight
+    ) {
+      id
+      firstName
+      lastName
+      bioSex
+      email
+      username
+      warCry
+      currentWeight
+      currentHeight
+    }
+  }
+`;
+
 export const UPDATE_ENTRY = gql`
   mutation UpdateEntry(
     $id: ID!

@@ -1,5 +1,4 @@
 import { Entry } from "../types";
-import { sortAscByNumberProp, sortDescByNumberProp } from "./arrayUtils";
 export const getEntryAvgPowerOutput = (entry: Entry) =>
   Number((2.8 / Math.pow(entry.time / entry.distance, 3)).toFixed(2));
 
