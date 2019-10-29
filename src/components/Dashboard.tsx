@@ -23,17 +23,7 @@ const Dashboard: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
       </div>
     );
   }
-  if (!data.listEntries.length) {
-    return (
-      <div className={"max-w-md mx-auto p-6"}>
-        <div className="w-full max-w-md">
-          <div className="p-6 bg-white rounded-lg shadow-xl ">
-            No entries yet...
-          </div>
-        </div>
-      </div>
-    );
-  }
+
   //sort by lastName, then firstName, then completedAt
   const allEntries: Entry[] = data.listEntries.sort((a: Entry, b: Entry) =>
     a.completedAt < b.completedAt ? 1 : -1
