@@ -14,7 +14,7 @@ const UpdateUser: React.FC<Props> = ({ user }) => {
   const [updateUserMutation] = useMutation(UPDATE_USER);
   const { handleSubmit, register, errors } = useForm();
   const onSubmit = async (values: any) => {
-    const dob = parse(values.dob, "MM/dd/yyyy", new Date());
+    const dob = parse(values.dob, "MM/dd/yyyy", new Date(user.dob));
     const payload = {
       id: user.id,
       firstName: values.firstName,
