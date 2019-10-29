@@ -1,1 +1,13 @@
-{}
+{
+  "name": "Competitor",
+  "short_name": "Competitor",
+  "start_url": ".",
+  "background_color": "#05A3FF",
+  "icons": [
+    {
+      "src": "comp-logo-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
