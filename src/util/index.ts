@@ -21,10 +21,11 @@ export {
 } from "./calculations";
 export {
   LIST_USERS,
-  LIST_ENTRIES,
-  CREATE_USER,
   GET_USER,
+  CREATE_USER,
   UPDATE_USER,
+  DELETE_USER,
+  LIST_ENTRIES,
   CREATE_ENTRY,
   UPDATE_ENTRY,
   DELETE_ENTRY,

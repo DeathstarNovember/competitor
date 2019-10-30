@@ -23,9 +23,9 @@ const Dashboard: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
       </div>
     );
   }
-
+  const entries: Entry[] = [...data.listEntries];
   //sort by lastName, then firstName, then completedAt
-  const allEntries: Entry[] = data.listEntries.sort((a: Entry, b: Entry) =>
+  const allEntries: Entry[] = entries.sort((a: Entry, b: Entry) =>
     a.completedAt < b.completedAt ? 1 : -1
   );
   const myEntries: Entry[] = currentUser
@@ -35,7 +35,7 @@ const Dashboard: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
   return (
     <div className={"p-6"}>
       {myEntries.length ? <StatSummary entries={myEntries} /> : null}
-      <CreateEntry currentUser={currentUser} />
+      {currentUser ? <CreateEntry currentUser={currentUser} /> : null}
       {allEntries.length ? (
         <EntryFeed currentUser={currentUser} entryList={allEntries} />
       ) : null}

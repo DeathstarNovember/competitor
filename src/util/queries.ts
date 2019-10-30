@@ -190,6 +190,11 @@ export const DELETE_ENTRY = gql`
     deleteEntry(id: $id)
   }
 `;
+export const DELETE_USER = gql`
+  mutation deleteUSER($id: ID!) {
+    deleteUSER(id: $id)
+  }
+`;
 
 export const GET_USER = gql`
   query getUser($id: ID!) {

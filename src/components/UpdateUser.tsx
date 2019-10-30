@@ -2,35 +2,53 @@ import React from "react";
 import { useMutation } from "@apollo/react-hooks";
 import useForm from "react-hook-form";
 import { parse } from "date-fns";
-import { UPDATE_USER } from "../util";
+import { UPDATE_USER, DELETE_USER } from "../util";
 import { User } from "../types";
 import { navigate } from "@reach/router";
+import { ExecutionResult } from "graphql";
+import { parseISO, format } from "date-fns/esm";
 type Props = {
   user: User;
+  currentUser: User;
+  setCurrentUser: (arg0: User | "") => void;
   path: string;
 };
-const UpdateUser: React.FC<Props> = ({ user }) => {
+const UpdateUser: React.FC<Props> = ({ user, currentUser, setCurrentUser }) => {
   console.warn({ user });
   const [updateUserMutation] = useMutation(UPDATE_USER);
+  const [deleteUserMutation] = useMutation(DELETE_USER);
   const { handleSubmit, register, errors } = useForm();
   const onSubmit = async (values: any) => {
-    const dob = parse(values.dob, "MM/dd/yyyy", new Date(user.dob));
+    const dob = format(
+      parse(values.dob, "MM/dd/yyyy", new Date(user.dob)),
+      "yyyy-MM-dd HH:mm:ss"
+    );
     const payload = {
+      ...values,
       id: user.id,
-      firstName: values.firstName,
-      lastName: values.lastName,
-      username: values.username,
       dob,
-      email: values.email,
-      bioSex: values.bioSex,
-      currentWeight: Number(values.currentWeight),
       currentHeight: Number(values.currentHeight),
-      warCry: values.warCry,
+      currentWeight: Number(values.currentWeight),
     };
     try {
-      const result = await updateUserMutation({
+      const result: ExecutionResult<{
+        updateUser: User;
+      }> = await updateUserMutation({
         variables: payload,
       });
+      navigate("/");
+      console.warn({ result });
+    } catch (err) {
+      navigate("/");
+      console.warn({ err });
+    }
+  };
+  const handleUserDelete = async (user: User) => {
+    try {
+      const result = await deleteUserMutation({ variables: { id: user.id } });
+      if (currentUser.id === user.id) {
+        setCurrentUser("");
+      }
       navigate("/");
       console.warn({ result });
     } catch (err) {
@@ -48,12 +66,6 @@ const UpdateUser: React.FC<Props> = ({ user }) => {
           <div className="flex flex-col flex-1 items-center">
             <div className="pb-4 flex flex-1 items-center">
               <div className="pr-2">
-                {/* <label
-                  htmlFor="firstName"
-                  className="text-sm block font-bold pb-2"
-                >
-                  First Name
-                </label> */}
                 <input
                   name="firstName"
                   ref={register({
@@ -68,12 +80,6 @@ const UpdateUser: React.FC<Props> = ({ user }) => {
             </div>
             <div className="pb-4 flex flex-1 items-center">
               <div className="pr-2">
-                {/* <label
-                  htmlFor="lastName"
-                  className="text-sm block font-bold pb-2"
-                >
-                  Last Name
-                </label> */}
                 <input
                   name="lastName"
                   ref={register({
@@ -88,12 +94,6 @@ const UpdateUser: React.FC<Props> = ({ user }) => {
             </div>
             <div className="pb-4 flex flex-1 items-center">
               <div className="pr-2">
-                {/* <label
-                  htmlFor="username"
-                  className="text-sm block font-bold pb-2"
-                >
-                  Username
-                </label> */}
                 <input
                   name="username"
                   ref={register({
@@ -108,9 +108,6 @@ const UpdateUser: React.FC<Props> = ({ user }) => {
             </div>
             <div className="pb-4 flex flex-1 items-center">
               <div className="pr-2">
-                {/* <label htmlFor="email" className="text-sm block font-bold pb-2">
-                  Email
-                </label> */}
                 <input
                   name="email"
                   ref={register({
@@ -137,6 +134,7 @@ const UpdateUser: React.FC<Props> = ({ user }) => {
                       message: "MM/DD/YYYY PLS",
                     },
                   })}
+                  defaultValue={format(parseISO(user.dob), "MM/dd/yyyy")}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300"
                   placeholder="MM/DD/YYYY"
                 />
@@ -236,6 +234,12 @@ const UpdateUser: React.FC<Props> = ({ user }) => {
               type="submit"
             >
               Update
+            </button>
+            <button
+              className="bg-red-500 hover:bg-red-700 text-black font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              onClick={() => handleUserDelete(user)}
+            >
+              Delete Account
             </button>
             <button
               className="bg-gray-500 hover:bg-gray-700 text-black font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"

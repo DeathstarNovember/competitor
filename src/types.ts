@@ -3,7 +3,7 @@ export type User = {
   firstName: string;
   lastName: string;
   email: string;
-  dob: Date;
+  dob: string;
   username: string;
   bioSex: string;
   currentWeight: number;

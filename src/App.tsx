@@ -14,9 +14,8 @@ import { Router, navigate } from "@reach/router";
 import { useLocalStorage } from "./hooks";
 import Dashboard from "./components/Dashboard";
 import { User } from "./types";
-// console.log(process.env.NODE_ENV);
-const uri = "https://competition-prod.herokuapp.com/api";
-// "http://localhost:4000/api";
+const uri = "http://localhost:4000/api";
+// const uri = "https://competition-prod.herokuapp.com/api";
 const client = new ApolloClient({
   link: ApolloLink.from([
     onError(({ graphQLErrors, networkError }) => {
@@ -92,14 +91,18 @@ const App: React.FC = () => {
       <ThemeProvider theme={theme}>
         <div className="min-h-screen bg-gray-200">
           <AppBar currentUser={currentUser} onSignOut={handleSignOut} />
-
           <Router>
             <Login path="login" selectUser={setCurrentUser} />
             {currentUser ? (
               <Dashboard path="/" currentUser={currentUser} />
             ) : null}
             {currentUser ? (
-              <UpdateUserProfile path="update_profile" user={currentUser} />
+              <UpdateUserProfile
+                path="update_profile"
+                user={currentUser}
+                currentUser={currentUser}
+                setCurrentUser={setCurrentUser}
+              />
             ) : null}
           </Router>
         </div>

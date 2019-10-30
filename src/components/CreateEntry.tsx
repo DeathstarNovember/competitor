@@ -2,25 +2,24 @@ import React, { useState } from "react";
 import { useMutation } from "@apollo/react-hooks";
 import useForm from "react-hook-form";
 import { User, Entry } from "../types";
-import { RouteComponentProps } from "@reach/router";
+import { RouteComponentProps, navigate } from "@reach/router";
 import { parse, format, set } from "date-fns";
-import { LIST_ENTRIES, CREATE_ENTRY } from "../util";
+import { CREATE_ENTRY } from "../util";
+import { ExecutionResult } from "graphql";
 
 type Props = {
   currentUser: User;
+  entries: Entry[];
+  setEntries: (arg0: Entry[]) => void;
 };
 
-const CreateEntry: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
+const CreateEntry: React.FC<RouteComponentProps<Props>> = ({
+  currentUser,
+  setEntries,
+  entries,
+}) => {
   const [displayCreateEntryForm, setDisplayCreateEntryForm] = useState(false);
-  const [createEntryMutation] = useMutation(CREATE_ENTRY, {
-    update(cache, { data: { createEntryMutation } }) {
-      const entries: Entry[] = cache.readQuery({ query: LIST_ENTRIES }) || [];
-      cache.writeQuery({
-        query: LIST_ENTRIES,
-        data: { listEntries: entries.concat([createEntryMutation]) },
-      });
-    },
-  });
+  const [createEntryMutation] = useMutation(CREATE_ENTRY);
 
   const { handleSubmit, register, errors } = useForm();
 
@@ -68,11 +67,14 @@ const CreateEntry: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
       console.warn({ payload });
 
       try {
-        const result = await createEntryMutation({
+        const result: ExecutionResult<{
+          createEntry: Entry;
+        }> = await createEntryMutation({
           variables: payload,
         });
-        setDisplayCreateEntryForm(false);
         console.warn({ result });
+
+        navigate("/");
       } catch (err) {
         console.warn({ err });
       }
@@ -93,12 +95,6 @@ const CreateEntry: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
           >
             <div className="pb-4 flex">
               <div className="pr-2">
-                {/* <label
-                  htmlFor="distance"
-                  className="text-sm block font-bold pb-2"
-                >
-                  Distance in Meters
-                </label> */}
                 <input
                   name="distance"
                   ref={register({
@@ -114,12 +110,6 @@ const CreateEntry: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
                 {errors.distance && errors.distance.message}
               </div>
               <div className="">
-                {/* <label
-                  htmlFor="strokeRate"
-                  className="text-sm block font-bold pb-2"
-                >
-                  Avg Stroke Rate
-                </label> */}
                 <input
                   name="strokeRate"
                   ref={register({
@@ -157,9 +147,6 @@ const CreateEntry: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
 
             <div className="pb-4 flex mt-4">
               <div className="pr-2">
-                {/* <label htmlFor="avgHr" className="text-sm block font-bold pb-2">
-                  Avg HR
-                </label> */}
                 <input
                   name="avgHr"
                   ref={register({
@@ -175,9 +162,6 @@ const CreateEntry: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
                 {errors.avgHr && errors.avgHr.message}
               </div>
               <div className="">
-                {/* <label htmlFor="maxHr" className="text-sm block font-bold pb-2">
-                  Max HR
-                </label> */}
                 <input
                   name="maxHr"
                   ref={register({
@@ -192,16 +176,6 @@ const CreateEntry: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
                 />
               </div>
             </div>
-            {/* <div className="pb-4">
-              <div>
-                <label
-                  htmlFor="duration"
-                  className="text-sm block font-bold pb-2"
-                >
-                  Duration
-                </label>
-              </div>
-            </div> */}
             <div className="pb-4 flex">
               <div className="pr-2">
                 <label
