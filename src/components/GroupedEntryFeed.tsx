@@ -2,7 +2,7 @@ import React from "react";
 import EntryPreview from "./EntryPreview";
 import { Entry, User } from "../types";
 
-type PublicEntryFeedProps = {
+type GroupedEntryFeedProps = {
   entries: Entry[];
   currentUser?: User;
 };
@@ -30,7 +30,7 @@ const groupEntriesByUser = (arr: Entry[]) => {
   }, {});
 };
 
-const PublicEntryFeed: React.FC<PublicEntryFeedProps> = ({
+const GroupedEntryFeed: React.FC<GroupedEntryFeedProps> = ({
   entries,
   currentUser,
 }) => {
@@ -81,4 +81,4 @@ const PublicEntryFeed: React.FC<PublicEntryFeedProps> = ({
   );
 };
 
-export default PublicEntryFeed;
+export default GroupedEntryFeed;

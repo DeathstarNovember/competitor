@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { User, Entry } from "../types";
-import UserEntryFeed from "./UserEntryFeed";
-import PublicEntryFeed from "./PublicEntryFeed";
+import GroupedEntryFeed from "./GroupedEntryFeed";
+import { MdSwapHoriz } from "react-icons/md";
 
 type EntryFeedProps = {
   currentUser?: User;
@@ -33,11 +33,11 @@ const EntryFeed: React.FC<EntryFeedProps> = ({ currentUser, entryList }) => {
           <div>
             {displayOption !== DisplayOptions.Personal ? (
               <button
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mb-4 rounded focus:outline-none focus:shadow-outline"
+                className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 mb-4 rounded focus:outline-none focus:shadow-outline"
                 type="button"
                 onClick={() => changeDisplayOption(DisplayOptions.Personal)}
               >
-                See Personal Feed
+                <MdSwapHoriz />
               </button>
             ) : null}
             {displayOption !== DisplayOptions.Public && currentUser ? (
@@ -46,19 +46,30 @@ const EntryFeed: React.FC<EntryFeedProps> = ({ currentUser, entryList }) => {
                 type="button"
                 onClick={() => changeDisplayOption(DisplayOptions.Public)}
               >
-                See Public Feed
+                <MdSwapHoriz />
               </button>
             ) : null}
           </div>
         </div>
         {displayOption === DisplayOptions.Personal ? (
           <div className="p-6 bg-white rounded-lg shadow-xl">
-            <PublicEntryFeed entries={myEntries} currentUser={currentUser} />
+            {myEntries.length ? (
+              <GroupedEntryFeed entries={myEntries} currentUser={currentUser} />
+            ) : (
+              <div className="text-lg">No entries yet...</div>
+            )}
           </div>
         ) : null}
         {displayOption === DisplayOptions.Public ? (
           <div className="p-6 bg-white rounded-lg shadow-xl">
-            <PublicEntryFeed entries={allEntries} currentUser={currentUser} />
+            {allEntries.length ? (
+              <GroupedEntryFeed
+                entries={allEntries}
+                currentUser={currentUser}
+              />
+            ) : (
+              <div className="text-lg">No entries yet...</div>
+            )}
           </div>
         ) : null}
       </div>
