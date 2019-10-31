@@ -2,21 +2,36 @@ import React from "react";
 import { useMutation } from "@apollo/react-hooks";
 import useForm from "react-hook-form";
 import { parse } from "date-fns";
-import { UPDATE_USER, DELETE_USER } from "../util";
+import { UPDATE_USER, LIST_USERS } from "../util";
 import { User } from "../types";
 import { navigate } from "@reach/router";
 import { ExecutionResult } from "graphql";
 import { parseISO, format } from "date-fns/esm";
 type Props = {
   user: User;
-  currentUser: User;
-  setCurrentUser: (arg0: User | "") => void;
   path: string;
 };
-const UpdateUser: React.FC<Props> = ({ user, currentUser, setCurrentUser }) => {
+const UpdateUser: React.FC<Props> = ({ user }) => {
   console.warn({ user });
-  const [updateUserMutation] = useMutation(UPDATE_USER);
-  const [deleteUserMutation] = useMutation(DELETE_USER);
+  const [updateUserMutation] = useMutation(UPDATE_USER, {
+    update(cache, { data: updateUser }) {
+      const cachedData: { listUsers: User[] } | null = cache.readQuery({
+        query: LIST_USERS,
+      });
+      console.warn({ cachedData }, { updateUser });
+      cache.writeQuery({
+        query: LIST_USERS,
+        data: {
+          listUsers: cachedData
+            ? [...cachedData.listUsers, updateUser]
+            : [{ ...updateUser }],
+        },
+      });
+    },
+  });
+  // const [deleteUserMutation] = useMutation(DELETE_USER, {
+  //   update(cache, )
+  // });
   const { handleSubmit, register, errors } = useForm();
   const onSubmit = async (values: any) => {
     const dob = format(
@@ -43,18 +58,18 @@ const UpdateUser: React.FC<Props> = ({ user, currentUser, setCurrentUser }) => {
       console.warn({ err });
     }
   };
-  const handleUserDelete = async (user: User) => {
-    try {
-      const result = await deleteUserMutation({ variables: { id: user.id } });
-      if (currentUser.id === user.id) {
-        setCurrentUser("");
-      }
-      navigate("/");
-      console.warn({ result });
-    } catch (err) {
-      console.warn({ err });
-    }
-  };
+  // const handleUserDelete = async (user: User) => {
+  //   try {
+  //     const result = await deleteUserMutation({ variables: { id: user.id } });
+  //     if (currentUser.id === user.id) {
+  //       setCurrentUser("");
+  //     }
+  //     navigate("/");
+  //     console.warn({ result });
+  //   } catch (err) {
+  //     console.warn({ err });
+  //   }
+  // };
   // console.warn({ errors });
   return (
     <div className={"max-w-md mx-auto p-6"}>
@@ -235,12 +250,12 @@ const UpdateUser: React.FC<Props> = ({ user, currentUser, setCurrentUser }) => {
             >
               Update
             </button>
-            <button
+            {/* <button
               className="bg-red-500 hover:bg-red-700 text-black font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               onClick={() => handleUserDelete(user)}
             >
               Delete Account
-            </button>
+            </button> */}
             <button
               className="bg-gray-500 hover:bg-gray-700 text-black font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               onClick={() => navigate("/")}

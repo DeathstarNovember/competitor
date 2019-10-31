@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useMutation } from "@apollo/react-hooks";
-import { formatTimeMS, entryCalculations } from "../util";
+import { formatTimeMS, entryCalculations, LIST_ENTRIES } from "../util";
 import { Entry } from "../types";
 import { DELETE_ENTRY } from "../util";
 import {
@@ -17,10 +17,30 @@ import { format } from "date-fns/esm";
 type EntryProps = {
   entry: Entry;
   entryId: number;
+  mine?: boolean;
 };
-const EntryPreview: React.FC<EntryProps> = ({ entry, entryId }) => {
+const EntryPreview: React.FC<EntryProps> = ({
+  entry,
+  entryId,
+  mine = false,
+}) => {
   const entryMetrics: EntryCalculations = entryCalculations(entry);
-  const [deleteEntryMutation] = useMutation(DELETE_ENTRY);
+  const [deleteEntryMutation] = useMutation(DELETE_ENTRY, {
+    update(cache, { data: { deleteEntry } }) {
+      const cachedData: { listEntries: Entry[] } | null = cache.readQuery({
+        query: LIST_ENTRIES,
+      });
+      console.warn({ cachedData }, { deleteEntry: entry.id });
+      cache.writeQuery({
+        query: LIST_ENTRIES,
+        data: {
+          listEntries: cachedData
+            ? [...cachedData.listEntries.filter(e => e.id !== entry.id)]
+            : [],
+        },
+      });
+    },
+  });
   const [displayWeightCorrected, setDisplayWeightCorrected] = useState(false);
   const [displayHrInfo, setDisplayHrInfo] = useState(false);
   const [displayForm, setDisplayForm] = useState(false);
@@ -42,13 +62,15 @@ const EntryPreview: React.FC<EntryProps> = ({ entry, entryId }) => {
     setDisplayForm(!displayForm);
   };
   const handleHrFormToggle = () => {
-    setDisplayHrForm(!displayHrForm);
+    if (mine) setDisplayHrForm(!displayHrForm);
   };
   return (
     <div
       key={entryId}
-      className="p-2 border-b last:border-b-0 border-color-gray-700
-          hover:bg-gray-200"
+      className={`${
+        mine ? "bg-green-200" : ""
+      } p-2 border-b last:border-b-0 border-color-gray-700
+          hover:bg-gray-200`}
     >
       <div className="flex justify-between">
         <div>{`${entry.user.firstName} ${entry.user.lastName[0]}.`}</div>
@@ -71,19 +93,28 @@ const EntryPreview: React.FC<EntryProps> = ({ entry, entryId }) => {
             <MdHeartRate style={{ color: "gray" }} />
           </button>
         )}
-        <div className="flex">
-          <button onClick={handleFormToggle}>
-            <MdEdit />
-          </button>
-          <button onClick={() => handleDelete(entry.id)}>
-            <MdDelete />
-          </button>
-        </div>
+        {mine ? (
+          <div className="flex">
+            <button onClick={handleFormToggle}>
+              <MdEdit />
+            </button>
+            <button onClick={() => handleDelete(entry.id)}>
+              <MdDelete />
+            </button>
+          </div>
+        ) : null}
       </div>
       <div className="flex justify-between">
         <div className="flex-column flex-1">
-          {displayForm ? <UpdateEntry entry={entry} /> : null}
-          {displayHrForm ? <UpdateEntryHrInfo entry={entry} /> : null}
+          {displayForm ? (
+            <UpdateEntry entry={entry} handleFormToggle={handleFormToggle} />
+          ) : null}
+          {displayHrForm ? (
+            <UpdateEntryHrInfo
+              entry={entry}
+              handleHrFormToggle={handleHrFormToggle}
+            />
+          ) : null}
           {displayHrInfo ? (
             <div>
               <div className="flex-1 italic text-sm">HR Info</div>

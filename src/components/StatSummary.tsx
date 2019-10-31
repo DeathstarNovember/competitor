@@ -9,7 +9,7 @@ const StatSummary: React.FC<StatSummaryProps> = ({ entries }) => {
   const statSummary = entryGroupCalculations(entries);
   return (
     <div className="max-w-md mx-auto">
-      <div className="ml-2 text-xl font-bold">
+      <div className="text-xl font-bold">
         {`${entries
           .map(e => `${e.user.firstName} ${e.user.lastName[0]}.`)
           .filter((v, i, a) => a.indexOf(v) === i)
@@ -33,7 +33,7 @@ const StatSummary: React.FC<StatSummaryProps> = ({ entries }) => {
           "MM/dd/yy"
         )}`}
       </div>
-      <div className="ml-2 bg-blue-700 rounded-lg p-2 text-white">
+      <div className="bg-blue-700 rounded-lg p-2 text-white">
         <div className="flex flex-1 mb-3 justify-around">
           <div className="flex-column">
             <div className="font-bold">Total Dist</div>

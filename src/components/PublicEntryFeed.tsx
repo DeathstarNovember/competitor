@@ -1,9 +1,10 @@
 import React from "react";
 import EntryPreview from "./EntryPreview";
-import { Entry } from "../types";
+import { Entry, User } from "../types";
 
 type PublicEntryFeedProps = {
   entries: Entry[];
+  currentUser?: User;
 };
 
 const groupEntriesByDate = (arr: Entry[]) => {
@@ -29,7 +30,10 @@ const groupEntriesByUser = (arr: Entry[]) => {
   }, {});
 };
 
-const PublicEntryFeed: React.FC<PublicEntryFeedProps> = ({ entries }) => {
+const PublicEntryFeed: React.FC<PublicEntryFeedProps> = ({
+  entries,
+  currentUser,
+}) => {
   const dateGroupedEntries: { [key: string]: Entry[] } = groupEntriesByDate(
     entries
   );
@@ -48,10 +52,7 @@ const PublicEntryFeed: React.FC<PublicEntryFeedProps> = ({ entries }) => {
                 {dateKey}
               </div> */}
               {Object.keys(userGroupedEntries).map((userKey: string) => (
-                <div
-                  key={`${userKey}${dateKey}`}
-                  className="bg-blue-200 rounded-lg mb-2"
-                >
+                <div key={`${userKey}${dateKey}`} className="bg-blue-200 mb-2">
                   <div>
                     {/* <div className="bg-blue-200 rounded-lg p-2 m-1">
                       {userKey.replace(/_/, " ")}
@@ -62,6 +63,11 @@ const PublicEntryFeed: React.FC<PublicEntryFeedProps> = ({ entries }) => {
                           key={`${entry.user.id}${entryId}`}
                           entry={entry}
                           entryId={entryId}
+                          mine={
+                            currentUser
+                              ? currentUser.id === entry.user.id
+                              : false
+                          }
                         />
                       )
                     )}

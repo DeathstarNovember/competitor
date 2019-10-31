@@ -6,6 +6,7 @@ import { UPDATE_ENTRY } from "../util";
 
 type Props = {
   entry: Entry;
+  handleHrFormToggle: () => void;
 };
 
 type UpdateEntryHrInfoFormValues = {
@@ -13,7 +14,7 @@ type UpdateEntryHrInfoFormValues = {
   avgHr: number;
 };
 
-const UpdateEntryHrInfo: React.FC<Props> = ({ entry }) => {
+const UpdateEntryHrInfo: React.FC<Props> = ({ entry, handleHrFormToggle }) => {
   const [updateEntryHrInfoMutation] = useMutation(UPDATE_ENTRY);
 
   console.warn({ entry });
@@ -41,6 +42,7 @@ const UpdateEntryHrInfo: React.FC<Props> = ({ entry }) => {
       const result = await updateEntryHrInfoMutation({
         variables: payload,
       });
+      handleHrFormToggle();
       console.warn({ result });
     } catch (err) {
       console.warn({ err });

@@ -62,6 +62,7 @@ export const CREATE_ENTRY = gql`
       userHeight
       maxHr
       avgHr
+      completedAt
     }
   }
 `;

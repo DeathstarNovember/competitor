@@ -7,23 +7,10 @@ import { UPDATE_ENTRY } from "../util";
 
 type Props = {
   entry: Entry;
+  handleFormToggle: () => void;
 };
 
-type UpdateEntryFormValues = {
-  duration_h: number;
-  duration_m: number;
-  duration_s: number;
-  completed_time: string;
-  completed_date: string;
-  userWeight: number;
-  userId: number;
-  distance: number;
-  strokeRate: number;
-  maxHr: number;
-  avgHr: number;
-};
-
-const UpdateEntry: React.FC<Props> = ({ entry }) => {
+const UpdateEntry: React.FC<Props> = ({ entry, handleFormToggle }) => {
   const [updateEntryMutation] = useMutation(UPDATE_ENTRY);
 
   console.warn({ entry });
@@ -73,6 +60,7 @@ const UpdateEntry: React.FC<Props> = ({ entry }) => {
       const result = await updateEntryMutation({
         variables: payload,
       });
+      handleFormToggle();
       console.warn({ result });
     } catch (err) {
       console.warn({ err });
@@ -124,8 +112,8 @@ const UpdateEntry: React.FC<Props> = ({ entry }) => {
                 ref={register({
                   required: "Required",
                   pattern: {
-                    value: /^[1-9][0-9]+[.][0-9]$/i,
-                    message: "ex 0.0",
+                    value: /^[1-9][0-9]+$/i,
+                    message: "ex 185",
                   },
                 })}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300 "
@@ -190,8 +178,8 @@ const UpdateEntry: React.FC<Props> = ({ entry }) => {
                 ref={register({
                   required: "Required",
                   pattern: {
-                    value: /^[1-9][0-9]+[.][0-9]$/i,
-                    message: "ex 0.0",
+                    value: /^[1-9][0-9]+$/i,
+                    message: "ex 165",
                   },
                 })}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300 "
@@ -209,8 +197,8 @@ const UpdateEntry: React.FC<Props> = ({ entry }) => {
                 ref={register({
                   required: "Required",
                   pattern: {
-                    value: /^[1-9][0-9]+[.][0-9]$/i,
-                    message: "ex 0.0",
+                    value: /^[1-9][0-9]+$/i,
+                    message: "ex 160",
                   },
                 })}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300 "

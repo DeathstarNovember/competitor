@@ -97,12 +97,7 @@ const App: React.FC = () => {
               <Dashboard path="/" currentUser={currentUser} />
             ) : null}
             {currentUser ? (
-              <UpdateUserProfile
-                path="update_profile"
-                user={currentUser}
-                currentUser={currentUser}
-                setCurrentUser={setCurrentUser}
-              />
+              <UpdateUserProfile path="update_profile" user={currentUser} />
             ) : null}
           </Router>
         </div>

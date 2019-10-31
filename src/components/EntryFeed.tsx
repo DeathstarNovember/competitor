@@ -13,7 +13,7 @@ const EntryFeed: React.FC<EntryFeedProps> = ({ currentUser, entryList }) => {
     Public,
     Personal,
   }
-  const [displayOption, setDisplayOption] = useState(DisplayOptions.Public);
+  const [displayOption, setDisplayOption] = useState(DisplayOptions.Personal);
 
   //sort by lastName, then firstName, then completedAt
   const allEntries: Entry[] = entryList.sort((a: Entry, b: Entry) =>
@@ -53,12 +53,12 @@ const EntryFeed: React.FC<EntryFeedProps> = ({ currentUser, entryList }) => {
         </div>
         {displayOption === DisplayOptions.Personal ? (
           <div className="p-6 bg-white rounded-lg shadow-xl">
-            <UserEntryFeed entries={myEntries} />
+            <PublicEntryFeed entries={myEntries} currentUser={currentUser} />
           </div>
         ) : null}
         {displayOption === DisplayOptions.Public ? (
           <div className="p-6 bg-white rounded-lg shadow-xl">
-            <PublicEntryFeed entries={allEntries} />
+            <PublicEntryFeed entries={allEntries} currentUser={currentUser} />
           </div>
         ) : null}
       </div>

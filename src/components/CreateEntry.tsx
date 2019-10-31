@@ -2,24 +2,33 @@ import React, { useState } from "react";
 import { useMutation } from "@apollo/react-hooks";
 import useForm from "react-hook-form";
 import { User, Entry } from "../types";
-import { RouteComponentProps, navigate } from "@reach/router";
+import { RouteComponentProps } from "@reach/router";
 import { parse, format, set } from "date-fns";
-import { CREATE_ENTRY } from "../util";
+import { CREATE_ENTRY, LIST_ENTRIES } from "../util";
 import { ExecutionResult } from "graphql";
 
 type Props = {
   currentUser: User;
-  entries: Entry[];
-  setEntries: (arg0: Entry[]) => void;
 };
 
-const CreateEntry: React.FC<RouteComponentProps<Props>> = ({
-  currentUser,
-  setEntries,
-  entries,
-}) => {
+const CreateEntry: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
   const [displayCreateEntryForm, setDisplayCreateEntryForm] = useState(false);
-  const [createEntryMutation] = useMutation(CREATE_ENTRY);
+  const [createEntryMutation] = useMutation(CREATE_ENTRY, {
+    update(cache, { data: { createEntry } }) {
+      const cachedData: { listEntries: Entry[] } | null = cache.readQuery({
+        query: LIST_ENTRIES,
+      });
+      console.warn({ cachedData }, { createEntry });
+      cache.writeQuery({
+        query: LIST_ENTRIES,
+        data: {
+          listEntries: cachedData
+            ? [...cachedData.listEntries, createEntry]
+            : [{ ...createEntry }],
+        },
+      });
+    },
+  });
 
   const { handleSubmit, register, errors } = useForm();
 
@@ -73,8 +82,7 @@ const CreateEntry: React.FC<RouteComponentProps<Props>> = ({
           variables: payload,
         });
         console.warn({ result });
-
-        navigate("/");
+        setDisplayCreateEntryForm(false);
       } catch (err) {
         console.warn({ err });
       }
@@ -86,7 +94,7 @@ const CreateEntry: React.FC<RouteComponentProps<Props>> = ({
   console.warn({ errors });
 
   return (
-    <div className={"max-w-md mx-auto"}>
+    <div className={"mt-3 max-w-md mx-auto"}>
       {displayCreateEntryForm ? (
         <div className="w-full max-w-md">
           <form
@@ -150,7 +158,6 @@ const CreateEntry: React.FC<RouteComponentProps<Props>> = ({
                 <input
                   name="avgHr"
                   ref={register({
-                    required: "Required",
                     pattern: {
                       value: /^[1-9][0-9]+$/i,
                       message: "Numbers only PLS",
@@ -165,7 +172,6 @@ const CreateEntry: React.FC<RouteComponentProps<Props>> = ({
                 <input
                   name="maxHr"
                   ref={register({
-                    required: "Required",
                     pattern: {
                       value: /^[1-9][0-9]+$/i,
                       message: "Numbers only PLS",
@@ -231,16 +237,12 @@ const CreateEntry: React.FC<RouteComponentProps<Props>> = ({
           </form>
         </div>
       ) : (
-        <div>
-          <div className="bg-white shadow-md rounded px-4 py-4">
-            <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              onClick={() => setDisplayCreateEntryForm(true)}
-            >
-              Log Entry
-            </button>
-          </div>
-        </div>
+        <button
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          onClick={() => setDisplayCreateEntryForm(true)}
+        >
+          Log Entry
+        </button>
       )}
     </div>
   );
