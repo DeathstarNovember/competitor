@@ -164,8 +164,8 @@ const UpdateUser: React.FC<Props> = ({
                   ref={register({
                     required: "Required",
                     pattern: {
-                      value: /^[1-9][0-9]+[.][0-9]$/i,
-                      message: "Example 0.0 (decimal and tenths required)",
+                      value: /^[1-9][0-9]+[.]?[0-9]?$/i,
+                      message: "Example 0.0 (decimal and tenths optional)",
                     },
                   })}
                   defaultValue={String(user.currentWeight)}
