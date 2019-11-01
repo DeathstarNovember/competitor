@@ -93,6 +93,7 @@ export const CREATE_USER = gql`
       id
       firstName
       lastName
+      dob
       bioSex
       email
       username
@@ -133,6 +134,7 @@ export const UPDATE_USER = gql`
       lastName
       bioSex
       email
+      dob
       username
       warCry
       currentWeight

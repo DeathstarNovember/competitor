@@ -2,7 +2,7 @@ import React from "react";
 import { useMutation } from "@apollo/react-hooks";
 import useForm from "react-hook-form";
 import { parse } from "date-fns";
-import { UPDATE_USER, LIST_USERS } from "../util";
+import { UPDATE_USER } from "../util";
 import { User } from "../types";
 import { navigate } from "@reach/router";
 import { ExecutionResult } from "graphql";
@@ -10,32 +10,24 @@ import { parseISO, format } from "date-fns/esm";
 type Props = {
   user: User;
   path: string;
+  currentUser: User;
+  updateCurrentUser: (arg0: User) => void;
 };
-const UpdateUser: React.FC<Props> = ({ user }) => {
-  console.warn({ user });
-  const [updateUserMutation] = useMutation(UPDATE_USER, {
-    update(cache, { data: updateUser }) {
-      const cachedData: { listUsers: User[] } | null = cache.readQuery({
-        query: LIST_USERS,
-      });
-      console.warn({ cachedData }, { updateUser });
-      cache.writeQuery({
-        query: LIST_USERS,
-        data: {
-          listUsers: cachedData
-            ? [...cachedData.listUsers, updateUser]
-            : [{ ...updateUser }],
-        },
-      });
-    },
-  });
+
+const UpdateUser: React.FC<Props> = ({
+  user,
+  currentUser,
+  updateCurrentUser,
+}) => {
+  // console.warn({ user });
+  const [updateUserMutation] = useMutation(UPDATE_USER);
   // const [deleteUserMutation] = useMutation(DELETE_USER, {
   //   update(cache, )
   // });
   const { handleSubmit, register, errors } = useForm();
   const onSubmit = async (values: any) => {
     const dob = format(
-      parse(values.dob, "MM/dd/yyyy", new Date(user.dob)),
+      parse(values.dob, "MM/dd/yyyy", new Date()),
       "yyyy-MM-dd HH:mm:ss"
     );
     const payload = {
@@ -45,14 +37,18 @@ const UpdateUser: React.FC<Props> = ({ user }) => {
       currentHeight: Number(values.currentHeight),
       currentWeight: Number(values.currentWeight),
     };
+    // console.warn("submit", { payload });
     try {
       const result: ExecutionResult<{
         updateUser: User;
       }> = await updateUserMutation({
         variables: payload,
       });
+      if (currentUser.id === user.id && result.data) {
+        updateCurrentUser({ ...result.data.updateUser });
+      }
       navigate("/");
-      console.warn({ result });
+      // console.warn({ result });
     } catch (err) {
       navigate("/");
       console.warn({ err });

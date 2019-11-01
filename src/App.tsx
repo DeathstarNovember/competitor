@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { ApolloClient } from "apollo-client";
 import { InMemoryCache } from "apollo-cache-inmemory";
 import { HttpLink } from "apollo-link-http";
@@ -8,10 +8,8 @@ import { ApolloProvider } from "@apollo/react-hooks";
 import { ThemeProvider } from "styled-components";
 import { theme } from "./ui";
 import Login from "./components/Login";
-import { default as UpdateUserProfile } from "./components/UpdateUser";
+import UpdateUser from "./components/UpdateUser";
 import { Router, navigate } from "@reach/router";
-
-import { useLocalStorage } from "./hooks";
 import Dashboard from "./components/Dashboard";
 import { User } from "./types";
 // const uri = "http://localhost:4000/api";
@@ -72,14 +70,10 @@ const AppBar: React.FC<AppBarProps> = ({ currentUser, onSignOut }) => {
 };
 
 const App: React.FC = () => {
-  const [user, setCurrentUser] = useLocalStorage("CURRENT_USER", "");
-  const currentUser: User | "" = user;
+  const [currentUser, setCurrentUser] = useState<User | "">("");
   const handleSignOut = () => {
     setCurrentUser("");
   };
-
-  // console.warn("App", { currentUser });
-
   useEffect(() => {
     if (currentUser === "") {
       navigate("login");
@@ -97,7 +91,12 @@ const App: React.FC = () => {
               <Dashboard path="/" currentUser={currentUser} />
             ) : null}
             {currentUser ? (
-              <UpdateUserProfile path="update_profile" user={currentUser} />
+              <UpdateUser
+                path="update_profile"
+                user={currentUser}
+                currentUser={currentUser}
+                updateCurrentUser={setCurrentUser}
+              />
             ) : null}
           </Router>
         </div>
