@@ -157,7 +157,7 @@ const UpdateUser: React.FC<Props> = ({
                   htmlFor="currentWeight"
                   className="text-sm block font-bold pb-2"
                 >
-                  Weight
+                  Weight (kg)
                 </label>
                 <input
                   name="currentWeight"
@@ -179,7 +179,7 @@ const UpdateUser: React.FC<Props> = ({
                   htmlFor="currentHeight"
                   className="text-sm block font-bold pb-2"
                 >
-                  Height
+                  Height (cm)
                 </label>
                 <input
                   name="currentHeight"
