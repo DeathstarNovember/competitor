@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Entry, User } from "../types";
 import { RouteComponentProps } from "@reach/router";
 import EntryFeed from "./EntryFeed";
-import CreateEntry from "./CreateEntry";
 import { useQuery } from "@apollo/react-hooks";
 import { LIST_ENTRIES } from "../util";
 type Props = {
@@ -14,6 +13,9 @@ const Dashboard: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
     pollInterval: 30 * 1000,
   });
   const [displayCreateEntryForm, setDisplayCreateEntryForm] = useState(false);
+  const toggleCreateEntryForm = () => {
+    setDisplayCreateEntryForm(!displayCreateEntryForm);
+  };
   if (loading) {
     return (
       <div className="max-w-md mx-auto p-6">
@@ -36,24 +38,13 @@ const Dashboard: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
 
   return (
     <div className={"max-w-md mx-auto p-6"}>
-      <div>
-        <button
-          className={`bg-${
-            displayCreateEntryForm ? "gray" : "blue"
-          }-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline`}
-          onClick={() => setDisplayCreateEntryForm(!displayCreateEntryForm)}
-        >
-          Log Entry
-        </button>
-      </div>
-      {currentUser && displayCreateEntryForm ? (
-        <CreateEntry
-          currentUser={currentUser}
-          setDisplayCreateEntryForm={setDisplayCreateEntryForm}
-        />
-      ) : null}
       {allEntries.length ? (
-        <EntryFeed currentUser={currentUser} entryList={allEntries} />
+        <EntryFeed
+          currentUser={currentUser}
+          entryList={allEntries}
+          toggleCreateEntryForm={toggleCreateEntryForm}
+          displayCreateEntryForm={displayCreateEntryForm}
+        />
       ) : null}
     </div>
   );

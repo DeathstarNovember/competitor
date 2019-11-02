@@ -18,11 +18,11 @@ const UpdateEntry: React.FC<Props> = ({
 }) => {
   const [updateEntryMutation] = useMutation(UPDATE_ENTRY);
 
-  console.warn({ entry });
+  // console.warn({ entry });
   const { handleSubmit, register, errors } = useForm();
 
   const onSubmit = async (values: any) => {
-    console.warn({ values });
+    // console.warn({ values });
     const time =
       Number(values.duration_h) * 60 * 60 +
       Number(values.duration_m) * 60 +
@@ -59,7 +59,7 @@ const UpdateEntry: React.FC<Props> = ({
       avgHr: Number(values.avgHr),
     };
 
-    console.warn({ payload });
+    // console.warn({ payload });
 
     try {
       const result = await updateEntryMutation({

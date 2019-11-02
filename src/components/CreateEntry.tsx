@@ -8,19 +8,19 @@ import { ExecutionResult } from "graphql";
 
 type Props = {
   currentUser: User;
-  setDisplayCreateEntryForm: (arg0: boolean) => void;
+  toggleDisplayCreateEntryForm: () => void;
 };
 
 const CreateEntry: React.FC<Props> = ({
   currentUser,
-  setDisplayCreateEntryForm,
+  toggleDisplayCreateEntryForm,
 }) => {
   const [createEntryMutation] = useMutation(CREATE_ENTRY, {
     update(cache, { data: { createEntry } }) {
       const cachedData: { listEntries: Entry[] } | null = cache.readQuery({
         query: LIST_ENTRIES,
       });
-      console.warn({ cachedData }, { createEntry });
+      // console.warn({ cachedData }, { createEntry });
       cache.writeQuery({
         query: LIST_ENTRIES,
         data: {
@@ -75,7 +75,7 @@ const CreateEntry: React.FC<Props> = ({
         avgHr: Number(values.avgHr),
       };
 
-      console.warn({ payload });
+      // console.warn({ payload });
 
       try {
         const result: ExecutionResult<{
@@ -84,7 +84,7 @@ const CreateEntry: React.FC<Props> = ({
           variables: payload,
         });
         console.warn({ result });
-        setDisplayCreateEntryForm(false);
+        toggleDisplayCreateEntryForm();
       } catch (err) {
         console.warn({ err });
       }
@@ -93,14 +93,14 @@ const CreateEntry: React.FC<Props> = ({
     }
   };
 
-  console.warn({ errors });
+  // console.warn({ errors });
 
   return (
-    <div className={"mt-3 max-w-md mx-auto"}>
+    <div className="my-3 max-w-md mx-auto">
       <div className="w-full max-w-md">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="bg-white shadow-md rounded px-8 py-8 pt-8"
+          className="bg-white shadow-md rounded px-6 py-6 pt-6"
         >
           <div className="pb-4 flex">
             <div className="pr-2">
@@ -220,7 +220,7 @@ const CreateEntry: React.FC<Props> = ({
             </button>
             <button
               className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              onClick={() => setDisplayCreateEntryForm(false)}
+              onClick={toggleDisplayCreateEntryForm}
             >
               cancel
             </button>

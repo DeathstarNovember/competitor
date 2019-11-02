@@ -1,15 +1,23 @@
 import React, { useState } from "react";
 import { User, Entry } from "../types";
 import GroupedEntryFeed from "./GroupedEntryFeed";
-import { MdSwapHoriz } from "react-icons/md";
+import { MdSwapHoriz, MdPlaylistAdd } from "react-icons/md";
 import StatSummary from "./StatSummary";
+import CreateEntry from "./CreateEntry";
 
 type EntryFeedProps = {
   currentUser?: User;
   entryList: Entry[];
+  toggleCreateEntryForm: () => void;
+  displayCreateEntryForm: boolean;
 };
 
-const EntryFeed: React.FC<EntryFeedProps> = ({ currentUser, entryList }) => {
+const EntryFeed: React.FC<EntryFeedProps> = ({
+  currentUser,
+  entryList,
+  toggleCreateEntryForm,
+  displayCreateEntryForm,
+}) => {
   enum DisplayOptions {
     Public,
     Personal,
@@ -27,9 +35,23 @@ const EntryFeed: React.FC<EntryFeedProps> = ({ currentUser, entryList }) => {
     setDisplayOption(option);
   };
   return (
-    <div className="max-w-md mx-auto p-6">
+    <div className="max-w-md mx-auto">
       {myEntries.length ? <StatSummary entries={myEntries} /> : null}
+      <button
+        className={`bg-${
+          displayCreateEntryForm ? "gray" : "blue"
+        }-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline`}
+        onClick={toggleCreateEntryForm}
+      >
+        <MdPlaylistAdd />
+      </button>
       <div className="w-full max-w-md">
+        {currentUser && displayCreateEntryForm ? (
+          <CreateEntry
+            currentUser={currentUser}
+            toggleDisplayCreateEntryForm={toggleCreateEntryForm}
+          />
+        ) : null}
         <div className="flex justify-between">
           <div className="text-xl font-bold">{`${DisplayOptions[displayOption]} Feed`}</div>
           <div>

@@ -38,7 +38,7 @@ const GroupedEntryFeed: React.FC<GroupedEntryFeedProps> = ({
     entries
   );
   return (
-    <div className="mb-16">
+    <div>
       {Object.keys(dateGroupedEntries)
         .sort()
         .reverse()
@@ -48,9 +48,9 @@ const GroupedEntryFeed: React.FC<GroupedEntryFeedProps> = ({
           );
           return (
             <div key={dateKey}>
-              {/* <div className="flex-1 bg-blue-400 rounded-lg p-2 mb-1 text-l">
+              <div className="flex-1 text-lg font-bold underline">
                 {dateKey}
-              </div> */}
+              </div>
               {Object.keys(userGroupedEntries).map((userKey: string) => (
                 <div key={`${userKey}${dateKey}`} className="bg-blue-200 mb-2">
                   <div>
