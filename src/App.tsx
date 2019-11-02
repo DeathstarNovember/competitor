@@ -35,19 +35,21 @@ const client = new ApolloClient({
 type AppBarProps = {
   currentUser: any;
   onSignOut: VoidFunction;
+  toggleDisplayUpdateUser: () => void;
 };
 
-const AppBar: React.FC<AppBarProps> = ({ currentUser, onSignOut }) => {
+const AppBar: React.FC<AppBarProps> = ({
+  currentUser,
+  onSignOut,
+  toggleDisplayUpdateUser,
+}) => {
   return (
     <div className="py-2 px-3 bg-gray-500 flex justify-between shadow-md text-gray-700">
       <div className="flex">
         {currentUser ? (
           <>
             <div className="text-gray-200 pr-2">Signed in as:</div>
-            <div
-              className="cursor-pointer"
-              onClick={() => navigate("update_profile")}
-            >
+            <div className="cursor-pointer" onClick={toggleDisplayUpdateUser}>
               {currentUser.firstName} {currentUser.lastName}
             </div>
           </>
@@ -71,34 +73,40 @@ const AppBar: React.FC<AppBarProps> = ({ currentUser, onSignOut }) => {
 
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | "">("");
+  const handleSignIn = (user: User) => {
+    setCurrentUser(user);
+  };
   const handleSignOut = () => {
     setCurrentUser("");
   };
-  useEffect(() => {
-    if (currentUser === "") {
-      navigate("login");
-    }
-  }, [currentUser]);
+  const [displayUpdateUser, setDisplayUpdateUser] = useState(false);
+  const toggleDisplayUpdateUser = () => {
+    setDisplayUpdateUser(!displayUpdateUser);
+  };
 
   return (
     <ApolloProvider client={client}>
       <ThemeProvider theme={theme}>
         <div className="min-h-screen bg-gray-200">
-          <AppBar currentUser={currentUser} onSignOut={handleSignOut} />
-          <Router>
-            <Login path="login" selectUser={setCurrentUser} />
-            {currentUser ? (
-              <Dashboard path="/" currentUser={currentUser} />
-            ) : null}
-            {currentUser ? (
+          <AppBar
+            currentUser={currentUser}
+            onSignOut={handleSignOut}
+            toggleDisplayUpdateUser={toggleDisplayUpdateUser}
+          />
+          {currentUser ? (
+            displayUpdateUser ? (
               <UpdateUser
-                path="update_profile"
                 user={currentUser}
                 currentUser={currentUser}
-                updateCurrentUser={setCurrentUser}
+                updateCurrentUser={handleSignIn}
+                setDisplay={setDisplayUpdateUser}
               />
-            ) : null}
-          </Router>
+            ) : (
+              <Dashboard currentUser={currentUser} />
+            )
+          ) : (
+            <Login selectUser={handleSignIn} />
+          )}
         </div>
       </ThemeProvider>
     </ApolloProvider>

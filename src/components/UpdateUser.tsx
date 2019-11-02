@@ -4,26 +4,23 @@ import useForm from "react-hook-form";
 import { parse } from "date-fns";
 import { UPDATE_USER } from "../util";
 import { User } from "../types";
-import { navigate } from "@reach/router";
 import { ExecutionResult } from "graphql";
 import { parseISO, format } from "date-fns/esm";
 type Props = {
   user: User;
-  path: string;
   currentUser: User;
   updateCurrentUser: (arg0: User) => void;
+  setDisplay: (arg0: boolean) => void;
 };
 
 const UpdateUser: React.FC<Props> = ({
   user,
   currentUser,
   updateCurrentUser,
+  setDisplay,
 }) => {
   // console.warn({ user });
   const [updateUserMutation] = useMutation(UPDATE_USER);
-  // const [deleteUserMutation] = useMutation(DELETE_USER, {
-  //   update(cache, )
-  // });
   const { handleSubmit, register, errors } = useForm();
   const onSubmit = async (values: any) => {
     const dob = format(
@@ -37,7 +34,6 @@ const UpdateUser: React.FC<Props> = ({
       currentHeight: Number(values.currentHeight),
       currentWeight: Number(values.currentWeight),
     };
-    // console.warn("submit", { payload });
     try {
       const result: ExecutionResult<{
         updateUser: User;
@@ -47,26 +43,12 @@ const UpdateUser: React.FC<Props> = ({
       if (currentUser.id === user.id && result.data) {
         updateCurrentUser({ ...result.data.updateUser });
       }
-      navigate("/");
-      // console.warn({ result });
+      setDisplay(false);
     } catch (err) {
-      navigate("/");
+      setDisplay(false);
       console.warn({ err });
     }
   };
-  // const handleUserDelete = async (user: User) => {
-  //   try {
-  //     const result = await deleteUserMutation({ variables: { id: user.id } });
-  //     if (currentUser.id === user.id) {
-  //       setCurrentUser("");
-  //     }
-  //     navigate("/");
-  //     console.warn({ result });
-  //   } catch (err) {
-  //     console.warn({ err });
-  //   }
-  // };
-  // console.warn({ errors });
   return (
     <div className={"max-w-md mx-auto p-6"}>
       <div className="w-full max-w-md">
@@ -246,15 +228,9 @@ const UpdateUser: React.FC<Props> = ({
             >
               Update
             </button>
-            {/* <button
-              className="bg-red-500 hover:bg-red-700 text-black font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              onClick={() => handleUserDelete(user)}
-            >
-              Delete Account
-            </button> */}
             <button
               className="bg-gray-500 hover:bg-gray-700 text-black font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              onClick={() => navigate("/")}
+              onClick={() => setDisplay(false)}
             >
               cancel
             </button>
