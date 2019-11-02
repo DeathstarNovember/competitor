@@ -1,20 +1,20 @@
 import React from "react";
-import { useMutation } from "@apollo/react-hooks";
+import { useMutation, useQuery } from "@apollo/react-hooks";
 import useForm from "react-hook-form";
 import { parse } from "date-fns";
-import { UPDATE_USER } from "../util";
+import { UPDATE_USER, GET_USER } from "../util";
 import { User } from "../types";
 import { ExecutionResult } from "graphql";
 import { parseISO, format } from "date-fns/esm";
 type Props = {
-  user: User;
+  userId: number;
   currentUser: User;
   updateCurrentUser: (arg0: User) => void;
   setDisplay: (arg0: boolean) => void;
 };
 
 const UpdateUser: React.FC<Props> = ({
-  user,
+  userId,
   currentUser,
   updateCurrentUser,
   setDisplay,
@@ -22,6 +22,24 @@ const UpdateUser: React.FC<Props> = ({
   // console.warn({ user });
   const [updateUserMutation] = useMutation(UPDATE_USER);
   const { handleSubmit, register, errors } = useForm();
+  const { data, loading, error } = useQuery(GET_USER, {
+    variables: { id: userId },
+  });
+  if (loading) {
+    return (
+      <div className="max-w-md mx-auto p-6">
+        <div className="p-6 rounded-lg shadow-xl">Loading....</div>
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="p-6 bg-red-200  rounded-lg shadow-xl text-red-900">
+        Error: {JSON.stringify(error)}
+      </div>
+    );
+  }
+  const user: User = data.getUser;
   const onSubmit = async (values: any) => {
     const dob = format(
       parse(values.dob, "MM/dd/yyyy", new Date()),

@@ -4,7 +4,6 @@ import useForm from "react-hook-form";
 import { Entry } from "../types";
 import { parse, format, set, parseISO } from "date-fns";
 import { UPDATE_ENTRY } from "../util";
-import { MdDelete } from "react-icons/md";
 
 type Props = {
   entry: Entry;

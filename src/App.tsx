@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { ApolloClient } from "apollo-client";
 import { InMemoryCache } from "apollo-cache-inmemory";
 import { HttpLink } from "apollo-link-http";
@@ -9,7 +9,6 @@ import { ThemeProvider } from "styled-components";
 import { theme } from "./ui";
 import Login from "./components/Login";
 import UpdateUser from "./components/UpdateUser";
-import { Router, navigate } from "@reach/router";
 import Dashboard from "./components/Dashboard";
 import { User } from "./types";
 // const uri = "http://localhost:4000/api";
@@ -73,12 +72,18 @@ const AppBar: React.FC<AppBarProps> = ({
 
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | "">("");
+  const localUser = window.localStorage.getItem("currentUser");
+
   const handleSignIn = (user: User) => {
     setCurrentUser(user);
   };
   const handleSignOut = () => {
+    window.localStorage.removeItem("currentUser");
     setCurrentUser("");
   };
+  if (localUser && !currentUser) {
+    setCurrentUser(JSON.parse(localUser));
+  }
   const [displayUpdateUser, setDisplayUpdateUser] = useState(false);
   const toggleDisplayUpdateUser = () => {
     setDisplayUpdateUser(!displayUpdateUser);
@@ -96,7 +101,7 @@ const App: React.FC = () => {
           {currentUser ? (
             displayUpdateUser ? (
               <UpdateUser
-                user={currentUser}
+                userId={currentUser.id}
                 currentUser={currentUser}
                 updateCurrentUser={handleSignIn}
                 setDisplay={setDisplayUpdateUser}

@@ -3,7 +3,6 @@ import { Entry, User } from "../types";
 import { RouteComponentProps } from "@reach/router";
 import EntryFeed from "./EntryFeed";
 import CreateEntry from "./CreateEntry";
-import StatSummary from "./StatSummary";
 import { useQuery } from "@apollo/react-hooks";
 import { LIST_ENTRIES } from "../util";
 type Props = {
@@ -14,7 +13,11 @@ const Dashboard: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
   const { loading, error, data } = useQuery(LIST_ENTRIES);
   const [displayCreateEntryForm, setDisplayCreateEntryForm] = useState(false);
   if (loading) {
-    return <div className="p-6 rounded-lg shadow-xl">Loading....</div>;
+    return (
+      <div className="max-w-md mx-auto p-6">
+        <div className="p-6 rounded-lg shadow-xl">Loading....</div>
+      </div>
+    );
   }
   if (error) {
     return (

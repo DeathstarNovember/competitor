@@ -222,11 +222,6 @@ export const LIST_USERS = gql`
       id
       firstName
       lastName
-      dob
-      bioSex
-      email
-      username
-      warCry
       currentWeight
       currentHeight
     }

@@ -27,7 +27,7 @@ const EntryFeed: React.FC<EntryFeedProps> = ({ currentUser, entryList }) => {
     setDisplayOption(option);
   };
   return (
-    <div className={"max-w-md mx-auto p-6"}>
+    <div className="max-w-md mx-auto p-6">
       {myEntries.length ? <StatSummary entries={myEntries} /> : null}
       <div className="w-full max-w-md">
         <div className="flex justify-between">

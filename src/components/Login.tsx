@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { useQuery } from "@apollo/react-hooks";
-
-import { RouteComponentProps, navigate } from "@reach/router";
 import { User } from "../types";
 import { LIST_USERS } from "../util";
 import CreateUser from "./CreateUser";
@@ -24,7 +22,7 @@ const ChooseMyself: React.FC<ChooseProps> = ({ onSelect }) => {
       </div>
     );
   }
-  console.warn({ data });
+  // console.warn({ data });
   return (
     <div className="p-6 bg-white rounded-lg shadow-xl">
       {data
@@ -47,15 +45,15 @@ type Props = {
   selectUser: (user: User) => void;
 };
 
-const Login: React.FC<RouteComponentProps<Props>> = ({ selectUser }) => {
+const Login: React.FC<Props> = ({ selectUser }) => {
   // const [currentUser, setCurrentUser] = useLocalStorage('CURRENT_USER', '')
 
   // console.warn('Login', { props, currentUser })
 
   const handleSelect = (user: User) => {
     if (selectUser) {
+      window.localStorage.setItem("currentUser", JSON.stringify(user));
       selectUser(user);
-      navigate("/");
     }
   };
   const [displayUserForm, setDisplayUserForm] = useState(false);
