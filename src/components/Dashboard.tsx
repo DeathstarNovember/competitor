@@ -10,7 +10,9 @@ type Props = {
   entries: Entry[];
 };
 const Dashboard: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
-  const { loading, error, data } = useQuery(LIST_ENTRIES);
+  const { loading, error, data } = useQuery(LIST_ENTRIES, {
+    pollInterval: 30 * 1000,
+  });
   const [displayCreateEntryForm, setDisplayCreateEntryForm] = useState(false);
   if (loading) {
     return (
