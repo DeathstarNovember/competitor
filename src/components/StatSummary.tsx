@@ -12,8 +12,8 @@ const StatSummary: React.FC<StatSummaryProps> = ({ entries }) => {
   return (
     <div className="max-w-md mx-auto">
       <div>
-        <div className="text-xl font-bold flex flex-1 justify-between">
-          {`Summary since ${format(
+        <div className="text-l font-bold flex flex-1 justify-between">
+          {`${format(
             parseISO(
               String(
                 entries

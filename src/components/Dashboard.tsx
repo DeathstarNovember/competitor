@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Entry, User } from "../types";
 import { RouteComponentProps } from "@reach/router";
 import EntryFeed from "./EntryFeed";
@@ -12,6 +12,7 @@ type Props = {
 };
 const Dashboard: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
   const { loading, error, data } = useQuery(LIST_ENTRIES);
+  const [displayCreateEntryForm, setDisplayCreateEntryForm] = useState(false);
   if (loading) {
     return <div className="p-6 rounded-lg shadow-xl">Loading....</div>;
   }
@@ -27,14 +28,25 @@ const Dashboard: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
   const allEntries: Entry[] = entries.sort((a: Entry, b: Entry) =>
     a.completedAt < b.completedAt ? 1 : -1
   );
-  const myEntries: Entry[] = currentUser
-    ? data.listEntries.filter((e: Entry) => e.user.id === currentUser.id)
-    : undefined;
 
   return (
-    <div className={"p-6"}>
-      {myEntries.length ? <StatSummary entries={myEntries} /> : null}
-      {currentUser ? <CreateEntry currentUser={currentUser} /> : null}
+    <div className={"max-w-md mx-auto p-6"}>
+      <div>
+        <button
+          className={`bg-${
+            displayCreateEntryForm ? "gray" : "blue"
+          }-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline`}
+          onClick={() => setDisplayCreateEntryForm(!displayCreateEntryForm)}
+        >
+          Log Entry
+        </button>
+      </div>
+      {currentUser && displayCreateEntryForm ? (
+        <CreateEntry
+          currentUser={currentUser}
+          setDisplayCreateEntryForm={setDisplayCreateEntryForm}
+        />
+      ) : null}
       {allEntries.length ? (
         <EntryFeed currentUser={currentUser} entryList={allEntries} />
       ) : null}

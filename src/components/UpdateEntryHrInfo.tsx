@@ -52,11 +52,11 @@ const UpdateEntryHrInfo: React.FC<Props> = ({ entry, handleHrFormToggle }) => {
   // console.warn({ errors });
 
   return (
-    <div className={"max-w-md mx-auto p-6"}>
+    <div className={"max-w-md mx-auto p-2"}>
       <div className="w-full max-w-md">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="bg-white shadow-md rounded px-8 py-8 pt-8"
+          className="bg-white shadow-md rounded px-2 py-2 pt-2"
         >
           <div className="pb-4 flex">
             <div className="pr-2">

@@ -4,13 +4,19 @@ import useForm from "react-hook-form";
 import { Entry } from "../types";
 import { parse, format, set, parseISO } from "date-fns";
 import { UPDATE_ENTRY } from "../util";
+import { MdDelete } from "react-icons/md";
 
 type Props = {
   entry: Entry;
   handleFormToggle: () => void;
+  deleteEntry: (arg0: number) => void;
 };
 
-const UpdateEntry: React.FC<Props> = ({ entry, handleFormToggle }) => {
+const UpdateEntry: React.FC<Props> = ({
+  entry,
+  handleFormToggle,
+  deleteEntry,
+}) => {
   const [updateEntryMutation] = useMutation(UPDATE_ENTRY);
 
   console.warn({ entry });
@@ -70,11 +76,11 @@ const UpdateEntry: React.FC<Props> = ({ entry, handleFormToggle }) => {
   // console.warn({ errors });
 
   return (
-    <div className={"max-w-md mx-auto p-6"}>
+    <div className={"max-w-md mx-auto p-2"}>
       <div className="w-full max-w-md">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="bg-white shadow-md rounded px-8 py-8 pt-8"
+          className="bg-white shadow-md rounded px-2 py-2 pt-2"
         >
           <div className="pb-4 flex">
             <div className="pr-2">
@@ -278,12 +284,18 @@ const UpdateEntry: React.FC<Props> = ({ entry, handleFormToggle }) => {
               />
             </div>
           </div>
-          <div>
+          <div className="flex flex-1 justify-between">
             <button
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               type="submit"
             >
-              Update Entry
+              Update
+            </button>
+            <button
+              className="bg-red-500 hover:bg-red-700 text-black font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              onClick={() => deleteEntry(entry.id)}
+            >
+              Delete
             </button>
           </div>
         </form>

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { User, Entry } from "../types";
 import GroupedEntryFeed from "./GroupedEntryFeed";
 import { MdSwapHoriz } from "react-icons/md";
+import StatSummary from "./StatSummary";
 
 type EntryFeedProps = {
   currentUser?: User;
@@ -27,6 +28,7 @@ const EntryFeed: React.FC<EntryFeedProps> = ({ currentUser, entryList }) => {
   };
   return (
     <div className={"max-w-md mx-auto p-6"}>
+      {myEntries.length ? <StatSummary entries={myEntries} /> : null}
       <div className="w-full max-w-md">
         <div className="flex justify-between">
           <div className="text-xl font-bold">{`${DisplayOptions[displayOption]} Feed`}</div>

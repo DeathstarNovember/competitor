@@ -3,12 +3,7 @@ import { useMutation } from "@apollo/react-hooks";
 import { formatTimeMS, entryCalculations, LIST_ENTRIES } from "../util";
 import { Entry } from "../types";
 import { DELETE_ENTRY } from "../util";
-import {
-  MdDelete,
-  MdEdit,
-  MdFunctions,
-  MdFavorite as MdHeartRate,
-} from "react-icons/md";
+import { MdEdit, MdFunctions } from "react-icons/md";
 import { EntryCalculations } from "../util/calculations";
 import UpdateEntry from "./UpdateEntry";
 import UpdateEntryHrInfo from "./UpdateEntryHrInfo";
@@ -26,7 +21,7 @@ const EntryPreview: React.FC<EntryProps> = ({
 }) => {
   const entryMetrics: EntryCalculations = entryCalculations(entry);
   const [deleteEntryMutation] = useMutation(DELETE_ENTRY, {
-    update(cache, { data: { deleteEntry } }) {
+    update(cache) {
       const cachedData: { listEntries: Entry[] } | null = cache.readQuery({
         query: LIST_ENTRIES,
       });
@@ -42,7 +37,6 @@ const EntryPreview: React.FC<EntryProps> = ({
     },
   });
   const [displayWeightCorrected, setDisplayWeightCorrected] = useState(false);
-  const [displayHrInfo, setDisplayHrInfo] = useState(false);
   const [displayForm, setDisplayForm] = useState(false);
   const [displayHrForm, setDisplayHrForm] = useState(false);
   const handleDelete = (id: number) => {
@@ -50,13 +44,7 @@ const EntryPreview: React.FC<EntryProps> = ({
   };
 
   const handleWcToggle = () => {
-    if (!displayWeightCorrected && displayHrInfo) setDisplayHrInfo(false);
     setDisplayWeightCorrected(!displayWeightCorrected);
-  };
-  const handleHrToggle = () => {
-    if (!displayHrInfo && displayWeightCorrected)
-      setDisplayWeightCorrected(false);
-    setDisplayHrInfo(!displayHrInfo);
   };
   const handleFormToggle = () => {
     setDisplayForm(!displayForm);
@@ -72,42 +60,47 @@ const EntryPreview: React.FC<EntryProps> = ({
       } p-2 border-b last:border-b-0 border-color-gray-700
           hover:bg-gray-200`}
     >
-      <div className="flex justify-between">
-        <div>{`${entry.user.firstName} ${entry.user.lastName[0]}.`}</div>
-        <div className="italic text-sm">{`${entry.userWeight}kg`}</div>
-        <div className="italic text-sm">{`${entry.userHeight}cm`}</div>
-        <button onClick={handleWcToggle}>
-          <MdFunctions
-            style={{
-              color:
-                displayWeightCorrected && !displayHrInfo ? "blue" : "black",
-            }}
-          />
-        </button>
-        {entry.maxHr || entry.avgHr ? (
-          <button onClick={handleHrToggle}>
-            <MdHeartRate style={{ color: displayHrInfo ? "red" : "black" }} />
+      <div className="">
+        <div className="flex justify-between">
+          <button onClick={handleWcToggle}>
+            <MdFunctions
+              style={{
+                color: displayWeightCorrected ? "blue" : "black",
+              }}
+            />
           </button>
-        ) : (
-          <button onClick={handleHrFormToggle}>
-            <MdHeartRate style={{ color: "gray" }} />
-          </button>
-        )}
-        {mine ? (
-          <div className="flex">
+          {mine ? (
             <button onClick={handleFormToggle}>
               <MdEdit />
             </button>
-            <button onClick={() => handleDelete(entry.id)}>
-              <MdDelete />
-            </button>
+          ) : null}
+        </div>
+        <div>
+          <div className="flex flex-1 justify-between">
+            <div>{`${entry.user.firstName} ${entry.user.lastName[0]}.`}</div>
+            <div className="italic text-sm">
+              {format(new Date(entry.completedAt), "MM/dd/yyyy")}
+            </div>
           </div>
-        ) : null}
+          <div className="flex flex-1 justify-between">
+            <div className="flex">
+              <div className="italic text-sm mr-2">{`${entry.userWeight}kg`}</div>
+              <div className="italic text-sm">{`${entry.userHeight}cm`}</div>
+            </div>
+            <div className="italic text-sm">{`${
+              displayWeightCorrected ? "Weight Corrected" : "Raw Scores"
+            }`}</div>
+          </div>
+        </div>
       </div>
       <div className="flex justify-between">
         <div className="flex-column flex-1">
           {displayForm ? (
-            <UpdateEntry entry={entry} handleFormToggle={handleFormToggle} />
+            <UpdateEntry
+              entry={entry}
+              handleFormToggle={handleFormToggle}
+              deleteEntry={handleDelete}
+            />
           ) : null}
           {displayHrForm ? (
             <UpdateEntryHrInfo
@@ -115,62 +108,53 @@ const EntryPreview: React.FC<EntryProps> = ({
               handleHrFormToggle={handleHrFormToggle}
             />
           ) : null}
-          {displayHrInfo ? (
-            <div>
-              <div className="flex-1 italic text-sm">HR Info</div>
-              <div className="flex justify-between">
-                <div className="font-bold text-xl">
-                  {`Avg ${entry.avgHr}bpm`}
+          <div>
+            <div className="flex justify-between">
+              <div>
+                <div className="font-bold">
+                  {displayWeightCorrected
+                    ? `${entryMetrics.wcDistance.toFixed(0)}m in ${formatTimeMS(
+                        Number(entryMetrics.wcTime.toFixed(0))
+                      )}`
+                    : `${entry.distance}m in ${formatTimeMS(entry.time)}`}
                 </div>
-                <div>
-                  <div className="font-bold text-l">
-                    {`Max ${entry.maxHr}bpm`}
-                  </div>
+                <div className="flex">
+                  {entry.avgHr ? (
+                    <div className="mr-3">
+                      <div className=" font-bold text-xs">bpm Avg</div>
+                      <div className=" font-bold">{`${entry.avgHr ||
+                        "-"}`}</div>
+                    </div>
+                  ) : null}
+                  {entry.maxHr ? (
+                    <div>
+                      <div className=" font-bold text-xs">bpm Max</div>
+                      <div className=" font-bold text-l">
+                        {`${entry.maxHr || "-"}`}
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+              <div>
+                <div className="font-bold text-l">
+                  {displayWeightCorrected
+                    ? `${entryMetrics.wcPace.toFixed(2)}m/s`
+                    : `${entryMetrics.pace.toFixed(2)}m/s`}
+                </div>
+                <div className="font-bold text-l">
+                  {displayWeightCorrected
+                    ? `${entryMetrics.wcAvgPowerOutput}W`
+                    : `${entryMetrics.avgPowerOutput}W`}
+                </div>
+                <div className="font-bold text-l">
+                  {displayWeightCorrected
+                    ? `${entryMetrics.wcTotalPower}J`
+                    : `${entryMetrics.totalPower.toFixed(0)}J`}
                 </div>
               </div>
             </div>
-          ) : displayWeightCorrected ? (
-            <div>
-              <div className="flex-1 italic text-sm">Weight Corrected</div>
-              <div className="flex justify-between">
-                <div className="font-bold text-xl">
-                  {`${entryMetrics.wcDistance.toFixed(0)}m in ${formatTimeMS(
-                    Number(entryMetrics.wcTime.toFixed(0))
-                  )}`}
-                </div>
-                <div>
-                  <div className="font-bold text-l">
-                    {`${entryMetrics.wcPace.toFixed(2)}m/s`}
-                  </div>
-                  <div className="font-bold text-l">{`${entryMetrics.wcAvgPowerOutput}W`}</div>
-                  <div className="font-bold text-l">{`${entryMetrics.wcTotalPower}J`}</div>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div>
-              <div className="flex flex-1 justify-between">
-                <div className="italic text-sm">
-                  {format(new Date(entry.completedAt), "MM/dd/yyyy")}
-                </div>
-                <div className="italic text-sm">Raw Scores</div>
-              </div>
-              <div className="flex justify-between">
-                <div className="font-bold text-xl">{`${
-                  entry.distance
-                }m in ${formatTimeMS(entry.time)}`}</div>
-                <div>
-                  <div className="font-bold text-l">{`${entryMetrics.pace.toFixed(
-                    2
-                  )}m/s`}</div>
-                  <div className="font-bold text-l">{`${entryMetrics.avgPowerOutput}W`}</div>
-                  <div className="font-bold text-l">{`${entryMetrics.totalPower.toFixed(
-                    0
-                  )}J`}</div>
-                </div>
-              </div>
-            </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

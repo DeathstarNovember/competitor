@@ -1,18 +1,20 @@
-import React, { useState } from "react";
+import React from "react";
 import { useMutation } from "@apollo/react-hooks";
 import useForm from "react-hook-form";
 import { User, Entry } from "../types";
-import { RouteComponentProps } from "@reach/router";
 import { parse, format, set } from "date-fns";
 import { CREATE_ENTRY, LIST_ENTRIES } from "../util";
 import { ExecutionResult } from "graphql";
 
 type Props = {
   currentUser: User;
+  setDisplayCreateEntryForm: (arg0: boolean) => void;
 };
 
-const CreateEntry: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
-  const [displayCreateEntryForm, setDisplayCreateEntryForm] = useState(false);
+const CreateEntry: React.FC<Props> = ({
+  currentUser,
+  setDisplayCreateEntryForm,
+}) => {
   const [createEntryMutation] = useMutation(CREATE_ENTRY, {
     update(cache, { data: { createEntry } }) {
       const cachedData: { listEntries: Entry[] } | null = cache.readQuery({
@@ -95,155 +97,136 @@ const CreateEntry: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
 
   return (
     <div className={"mt-3 max-w-md mx-auto"}>
-      {displayCreateEntryForm ? (
-        <div className="w-full max-w-md">
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="bg-white shadow-md rounded px-8 py-8 pt-8"
-          >
-            <div className="pb-4 flex">
-              <div className="pr-2">
-                <input
-                  name="distance"
-                  ref={register({
-                    required: "Required",
-                    pattern: {
-                      value: /^[1-9][0-9]+$/i,
-                      message: "Numbers only PLS",
-                    },
-                  })}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300 "
-                  placeholder="distance (m)"
-                />
-                {errors.distance && errors.distance.message}
-              </div>
-              <div className="">
-                <input
-                  name="strokeRate"
-                  ref={register({
-                    required: "Required",
-                    pattern: {
-                      value: /^[1-9][0-9]+$/i,
-                      message: "Numbers only PLS",
-                    },
-                  })}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300 "
-                  placeholder="stroke rate (s/m)"
-                />
-              </div>
-            </div>
-            <div className="flex">
-              <input
-                name="duration_h"
-                ref={register({})}
-                className="shadow appearance-none border rounded w-full mr-2 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300"
-                placeholder="hh"
-              />
-              <input
-                name="duration_m"
-                ref={register({})}
-                className="shadow appearance-none border rounded w-full mr-2 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300"
-                placeholder="mm"
-              />
-              <input
-                name="duration_s"
-                ref={register({})}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300"
-                placeholder="ss"
-              />
-            </div>
-
-            <div className="pb-4 flex mt-4">
-              <div className="pr-2">
-                <input
-                  name="avgHr"
-                  ref={register({
-                    pattern: {
-                      value: /^[1-9][0-9]+$/i,
-                      message: "Numbers only PLS",
-                    },
-                  })}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300 "
-                  placeholder="Avg HR"
-                />
-                {errors.avgHr && errors.avgHr.message}
-              </div>
-              <div className="">
-                <input
-                  name="maxHr"
-                  ref={register({
-                    pattern: {
-                      value: /^[1-9][0-9]+$/i,
-                      message: "Numbers only PLS",
-                    },
-                  })}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300 "
-                  placeholder="Max HR"
-                />
-              </div>
-            </div>
-            <div className="pb-4 flex">
-              <div className="pr-2">
-                <label
-                  htmlFor="completed_date"
-                  className="text-sm block font-bold pb-2"
-                >
-                  Completed On
-                </label>
-                <input
-                  name="completed_date"
-                  ref={register({
-                    required: "Required",
-                    pattern: {
-                      value: /^(0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])[- /.](19|20)\d\d$/i,
-                      message: "MM/DD/YYYY PLS",
-                    },
-                  })}
-                  defaultValue={format(new Date(), "MM/dd/yyyy")}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300"
-                  placeholder="MM/DD/YYYY"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="completed_time"
-                  className="text-sm block font-bold pb-2"
-                >
-                  hh:mm
-                </label>
-                <input
-                  name="completed_time"
-                  ref={register({})}
-                  defaultValue={format(new Date(), "HH:mm")}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300"
-                  placeholder="HH:MM"
-                />
-              </div>
-            </div>
-            <div className="flex justify-between">
-              <button
-                className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                type="submit"
-              >
-                Log Entry
-              </button>
-              <button
-                className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                onClick={() => setDisplayCreateEntryForm(false)}
-              >
-                close
-              </button>
-            </div>
-          </form>
-        </div>
-      ) : (
-        <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-          onClick={() => setDisplayCreateEntryForm(true)}
+      <div className="w-full max-w-md">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="bg-white shadow-md rounded px-8 py-8 pt-8"
         >
-          Log Entry
-        </button>
-      )}
+          <div className="pb-4 flex">
+            <div className="pr-2">
+              <input
+                name="distance"
+                ref={register({
+                  required: "Required",
+                  pattern: {
+                    value: /^[1-9][0-9]+$/i,
+                    message: "Numbers only PLS",
+                  },
+                })}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300 "
+                placeholder="distance (m)"
+              />
+              {errors.distance && errors.distance.message}
+            </div>
+            <div className="">
+              <input
+                name="strokeRate"
+                ref={register({
+                  required: "Required",
+                  pattern: {
+                    value: /^[1-9][0-9]+$/i,
+                    message: "Numbers only PLS",
+                  },
+                })}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300 "
+                placeholder="stroke rate (s/m)"
+              />
+            </div>
+          </div>
+          <div className="flex">
+            <input
+              name="duration_h"
+              ref={register({})}
+              className="shadow appearance-none border rounded w-full mr-2 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300"
+              placeholder="hh"
+            />
+            <input
+              name="duration_m"
+              ref={register({})}
+              className="shadow appearance-none border rounded w-full mr-2 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300"
+              placeholder="mm"
+            />
+            <input
+              name="duration_s"
+              ref={register({})}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300"
+              placeholder="ss"
+            />
+          </div>
+
+          <div className="pb-4 flex mt-4">
+            <div className="pr-2">
+              <input
+                name="avgHr"
+                ref={register({})}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300 "
+                placeholder="Avg HR"
+              />
+              {errors.avgHr && errors.avgHr.message}
+            </div>
+            <div className="">
+              <input
+                name="maxHr"
+                ref={register({})}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300 "
+                placeholder="Max HR"
+              />
+            </div>
+          </div>
+          <div className="pb-4 flex">
+            <div className="pr-2">
+              <label
+                htmlFor="completed_date"
+                className="text-sm block font-bold pb-2"
+              >
+                Completed On
+              </label>
+              <input
+                name="completed_date"
+                ref={register({
+                  required: "Required",
+                  pattern: {
+                    value: /^(0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])[- /.](19|20)\d\d$/i,
+                    message: "MM/DD/YYYY PLS",
+                  },
+                })}
+                defaultValue={format(new Date(), "MM/dd/yyyy")}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300"
+                placeholder="MM/DD/YYYY"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="completed_time"
+                className="text-sm block font-bold pb-2"
+              >
+                hh:mm
+              </label>
+              <input
+                name="completed_time"
+                ref={register({})}
+                defaultValue={format(new Date(), "HH:mm")}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300"
+                placeholder="HH:MM"
+              />
+            </div>
+          </div>
+          <div className="flex justify-between">
+            <button
+              className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              type="submit"
+            >
+              Submit
+            </button>
+            <button
+              className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              onClick={() => setDisplayCreateEntryForm(false)}
+            >
+              cancel
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
