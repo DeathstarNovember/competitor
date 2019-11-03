@@ -68,6 +68,7 @@ const GroupedEntryFeed: React.FC<GroupedEntryFeedProps> = ({
                               ? currentUser.id === entry.user.id
                               : false
                           }
+                          currentUser={currentUser}
                         />
                       )
                     )}

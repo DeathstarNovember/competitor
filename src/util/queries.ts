@@ -11,6 +11,10 @@ export const LIST_ENTRIES = gql`
         currentWeight
         currentHeight
       }
+      likes {
+        id
+        userId
+      }
       userWeight
       userHeight
       distance
@@ -19,6 +23,16 @@ export const LIST_ENTRIES = gql`
       completedAt
       maxHr
       avgHr
+    }
+  }
+`;
+
+export const LIKE_ENTRY = gql`
+  mutation LikeEntry($userId: Int!, $entryId: Int!) {
+    likeEntry(userId: $userId, entryId: $entryId) {
+      id
+      entryId
+      userId
     }
   }
 `;
@@ -196,6 +210,12 @@ export const DELETE_ENTRY = gql`
 export const DELETE_USER = gql`
   mutation deleteUSER($id: ID!) {
     deleteUSER(id: $id)
+  }
+`;
+
+export const UNLIKE_ENTRY = gql`
+  mutation unlikeEntry($id: ID!) {
+    unlikeEntry(id: $id)
   }
 `;
 

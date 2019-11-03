@@ -28,6 +28,8 @@ export {
   LIST_ENTRIES,
   CREATE_ENTRY,
   UPDATE_ENTRY,
+  LIKE_ENTRY,
+  UNLIKE_ENTRY,
   DELETE_ENTRY,
 } from "./queries";
 export { sortAscByNumberProp, sortDescByNumberProp } from "./arrayUtils";

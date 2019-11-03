@@ -11,10 +11,16 @@ export type User = {
   warCry: string;
   biology: string;
 };
+export type Like = {
+  id: number;
+  userId: number;
+  entryId: number;
+};
 
 export type Entry = {
   id: number;
   user: User;
+  likes: Like[];
   userWeight: number;
   userHeight: number;
   distance: number;

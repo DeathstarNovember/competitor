@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { User, Entry } from "../types";
 import GroupedEntryFeed from "./GroupedEntryFeed";
-import { MdSwapHoriz, MdPlaylistAdd } from "react-icons/md";
+import { MdPlaylistAdd, MdPeople, MdPerson } from "react-icons/md";
 import StatSummary from "./StatSummary";
 import CreateEntry from "./CreateEntry";
 
@@ -37,14 +37,7 @@ const EntryFeed: React.FC<EntryFeedProps> = ({
   return (
     <div className="max-w-md mx-auto">
       {myEntries.length ? <StatSummary entries={myEntries} /> : null}
-      <button
-        className={`bg-${
-          displayCreateEntryForm ? "gray" : "blue"
-        }-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline`}
-        onClick={toggleCreateEntryForm}
-      >
-        <MdPlaylistAdd />
-      </button>
+
       <div className="w-full max-w-md">
         {currentUser && displayCreateEntryForm ? (
           <CreateEntry
@@ -53,6 +46,16 @@ const EntryFeed: React.FC<EntryFeedProps> = ({
           />
         ) : null}
         <div className="flex justify-between">
+          <div>
+            <button
+              className={`bg-${
+                displayCreateEntryForm ? "gray" : "blue"
+              }-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline`}
+              onClick={toggleCreateEntryForm}
+            >
+              <MdPlaylistAdd />
+            </button>
+          </div>
           <div className="text-xl font-bold">{`${DisplayOptions[displayOption]} Feed`}</div>
           <div>
             {displayOption !== DisplayOptions.Personal ? (
@@ -61,7 +64,7 @@ const EntryFeed: React.FC<EntryFeedProps> = ({
                 type="button"
                 onClick={() => changeDisplayOption(DisplayOptions.Personal)}
               >
-                <MdSwapHoriz />
+                <MdPeople />
               </button>
             ) : null}
             {displayOption !== DisplayOptions.Public && currentUser ? (
@@ -70,7 +73,7 @@ const EntryFeed: React.FC<EntryFeedProps> = ({
                 type="button"
                 onClick={() => changeDisplayOption(DisplayOptions.Public)}
               >
-                <MdSwapHoriz />
+                <MdPerson />
               </button>
             ) : null}
           </div>

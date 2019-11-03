@@ -1,23 +1,44 @@
 import React, { useState } from "react";
 import { useMutation } from "@apollo/react-hooks";
-import { formatTimeMS, entryCalculations, LIST_ENTRIES } from "../util";
-import { Entry } from "../types";
-import { DELETE_ENTRY } from "../util";
-import { MdEdit, MdFunctions, MdSubtitles, MdAccessTime } from "react-icons/md";
+import {
+  formatTimeMS,
+  entryCalculations,
+  LIST_ENTRIES,
+  LIKE_ENTRY,
+  DELETE_ENTRY,
+  UNLIKE_ENTRY,
+} from "../util";
+import { Entry, User, Like } from "../types";
+import { MdEdit, MdFunctions, MdAccessTime, MdThumbUp } from "react-icons/md";
 import { EntryCalculations } from "../util/calculations";
 import UpdateEntry from "./UpdateEntry";
 import { format } from "date-fns/esm";
+import { ExecutionResult } from "graphql";
 
 type EntryProps = {
   entry: Entry;
   entryId: number;
   mine?: boolean;
+  currentUser?: User;
 };
 const EntryPreview: React.FC<EntryProps> = ({
   entry,
   entryId,
   mine = false,
+  currentUser,
 }) => {
+  const currentUserId = currentUser ? currentUser.id : 0;
+  const likerIds = entry.likes
+    .map(like => like.userId)
+    .filter((v, i, a) => a.indexOf(v) === i);
+  const iLike = currentUser ? likerIds.includes(currentUser.id) : false;
+  const myLike: Like | undefined = iLike
+    ? entry.likes.find(like => like.userId === currentUserId) || {
+        id: 0,
+        userId: currentUserId,
+        entryId: entry.id,
+      }
+    : { id: 0, userId: currentUserId, entryId: entry.id };
   const entryMetrics: EntryCalculations = entryCalculations(entry);
   const [deleteEntryMutation] = useMutation(DELETE_ENTRY, {
     update(cache) {
@@ -35,11 +56,78 @@ const EntryPreview: React.FC<EntryProps> = ({
       });
     },
   });
+  const [unlikeEntryMutation] = useMutation(UNLIKE_ENTRY, {
+    update(cache) {
+      const cachedData: { listEntries: Entry[] } | null = cache.readQuery({
+        query: LIST_ENTRIES,
+      });
+      cache.writeQuery({
+        query: LIST_ENTRIES,
+        data: {
+          listEntries: cachedData
+            ? [
+                ...cachedData.listEntries.filter(e => e.id !== entry.id),
+                {
+                  ...entry,
+                  likes: currentUser
+                    ? [
+                        ...entry.likes.filter(
+                          like =>
+                            like.userId !== currentUser.id &&
+                            like.entryId !== entry.id
+                        ),
+                      ]
+                    : [...entry.likes],
+                },
+              ]
+            : [],
+        },
+      });
+    },
+  });
+  const [likeEntryMutation] = useMutation(LIKE_ENTRY);
   const [displayWeightCorrected, setDisplayWeightCorrected] = useState(false);
   const [displayForm, setDisplayForm] = useState(false);
   const [displayDetails, setDisplayDetails] = useState(false);
   const handleDelete = (id: number) => {
     deleteEntryMutation({ variables: { id } });
+  };
+  const handleUnlike = (likeId: number) => {
+    unlikeEntryMutation({ variables: { id: likeId } });
+  };
+  const handleLike = async () => {
+    if (currentUser) {
+      try {
+        const result: ExecutionResult<{
+          likeEntry: Like;
+        }> = await likeEntryMutation({
+          variables: { userId: currentUserId, entryId: entry.id },
+          update(cache, { data: { likeEntry } }) {
+            const cachedData: { listEntries: Entry[] } | null = cache.readQuery(
+              {
+                query: LIST_ENTRIES,
+              }
+            );
+            cache.writeQuery({
+              query: LIST_ENTRIES,
+              data: {
+                listEntries: cachedData
+                  ? [
+                      ...cachedData.listEntries.filter(
+                        cachedEntry => cachedEntry.id !== entry.id
+                      ),
+                      { ...entry, likes: [...entry.likes, likeEntry] },
+                    ]
+                  : "No Data",
+              },
+            });
+          },
+        });
+        console.warn({ result });
+      } catch (err) {
+        console.warn({ err });
+      }
+    }
   };
   const handleWcToggle = () => {
     setDisplayWeightCorrected(!displayWeightCorrected);
@@ -58,7 +146,7 @@ const EntryPreview: React.FC<EntryProps> = ({
       } p-2 border-b last:border-b-0 border-color-gray-700
           hover:bg-gray-200`}
     >
-      <div className="">
+      <div>
         <div className="flex justify-between">
           <button onClick={handleWcToggle}>
             <MdFunctions
@@ -67,14 +155,7 @@ const EntryPreview: React.FC<EntryProps> = ({
               }}
             />
           </button>
-          <button onClick={handleDetailsToggle}>
-            <MdSubtitles
-              style={{
-                color: displayDetails ? "blue" : "black",
-              }}
-            />
-          </button>
-          {mine ? (
+          {mine && displayDetails ? (
             <button
               onClick={handleFormToggle}
               style={{
@@ -84,29 +165,46 @@ const EntryPreview: React.FC<EntryProps> = ({
               <MdEdit />
             </button>
           ) : null}
+          <button onClick={iLike ? () => handleUnlike(myLike.id) : handleLike}>
+            <div className="flex">
+              <div className="text-sm mr-1">{`${entry.likes.length}`}</div>
+              <MdThumbUp
+                style={{
+                  color: iLike ? "blue" : "black",
+                }}
+              />
+            </div>
+          </button>
+          {/* <button onClick={handleDetailsToggle}>
+            <MdSubtitles
+              style={{
+                color: displayDetails ? "blue" : "black",
+              }}
+            />
+          </button> */}
         </div>
-        <div onClick={handleDetailsToggle} style={{ cursor: "pointer" }}>
+      </div>
+      <div onClick={handleDetailsToggle} style={{ cursor: "pointer" }}>
+        <div className="flex flex-1 justify-between">
+          <div>{`${entry.user.firstName} ${entry.user.lastName[0]}.`}</div>
+          <div className="italic text-sm">{`${
+            displayWeightCorrected ? "Weight Corrected" : "Raw Scores"
+          }`}</div>
+        </div>
+        {displayDetails ? (
           <div className="flex flex-1 justify-between">
-            <div>{`${entry.user.firstName} ${entry.user.lastName[0]}.`}</div>
-            <div className="italic text-sm">{`${
-              displayWeightCorrected ? "Weight Corrected" : "Raw Scores"
-            }`}</div>
-          </div>
-          {displayDetails ? (
-            <div className="flex flex-1 justify-between">
-              <div className="flex">
-                <div className="italic text-sm mr-2">{`${entry.userWeight}kg`}</div>
-                <div className="italic text-sm">{`${entry.userHeight}cm`}</div>
-              </div>
-              <div className="flex align-center">
-                <MdAccessTime size={16} />
-                <div className="italic text-sm ml-1">
-                  {`${format(new Date(entry.completedAt), "hh:mm")}`}
-                </div>
+            <div className="flex align-center">
+              <MdAccessTime size={16} />
+              <div className="italic text-sm ml-1">
+                {`${format(new Date(entry.completedAt), "hh:mm")}`}
               </div>
             </div>
-          ) : null}
-        </div>
+            <div className="flex">
+              <div className="italic text-sm mr-2">{`${entry.userWeight}kg`}</div>
+              <div className="italic text-sm">{`${entry.userHeight}cm`}</div>
+            </div>
+          </div>
+        ) : null}
       </div>
       <div className="flex justify-between">
         <div className="flex-column flex-1">

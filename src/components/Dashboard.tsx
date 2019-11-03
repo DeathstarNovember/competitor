@@ -1,14 +1,12 @@
 import React, { useState } from "react";
 import { Entry, User } from "../types";
-import { RouteComponentProps } from "@reach/router";
 import EntryFeed from "./EntryFeed";
 import { useQuery } from "@apollo/react-hooks";
 import { LIST_ENTRIES } from "../util";
 type Props = {
   currentUser: User;
-  entries: Entry[];
 };
-const Dashboard: React.FC<RouteComponentProps<Props>> = ({ currentUser }) => {
+const Dashboard: React.FC<Props> = ({ currentUser }) => {
   const { loading, error, data } = useQuery(LIST_ENTRIES, {
     pollInterval: 30 * 1000,
   });
