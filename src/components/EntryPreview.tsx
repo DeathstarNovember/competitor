@@ -12,6 +12,7 @@ import { Entry, User, Like } from "../types";
 import { MdEdit, MdFunctions, MdAccessTime, MdThumbUp } from "react-icons/md";
 import { EntryCalculations } from "../util/calculations";
 import UpdateEntry from "./UpdateEntry";
+import EntryComments from "./EntryComments";
 import { format } from "date-fns/esm";
 import { ExecutionResult } from "graphql";
 
@@ -56,6 +57,7 @@ const EntryPreview: React.FC<EntryProps> = ({
       });
     },
   });
+  const [likeEntryMutation] = useMutation(LIKE_ENTRY);
   const [unlikeEntryMutation] = useMutation(UNLIKE_ENTRY, {
     update(cache) {
       const cachedData: { listEntries: Entry[] } | null = cache.readQuery({
@@ -85,15 +87,12 @@ const EntryPreview: React.FC<EntryProps> = ({
       });
     },
   });
-  const [likeEntryMutation] = useMutation(LIKE_ENTRY);
+
   const [displayWeightCorrected, setDisplayWeightCorrected] = useState(false);
   const [displayForm, setDisplayForm] = useState(false);
   const [displayDetails, setDisplayDetails] = useState(false);
   const handleDelete = (id: number) => {
     deleteEntryMutation({ variables: { id } });
-  };
-  const handleUnlike = (likeId: number) => {
-    unlikeEntryMutation({ variables: { id: likeId } });
   };
   const handleLike = async () => {
     if (currentUser) {
@@ -129,6 +128,10 @@ const EntryPreview: React.FC<EntryProps> = ({
       }
     }
   };
+  const handleUnlike = (likeId: number) => {
+    unlikeEntryMutation({ variables: { id: likeId } });
+  };
+
   const handleWcToggle = () => {
     setDisplayWeightCorrected(!displayWeightCorrected);
   };
@@ -143,7 +146,7 @@ const EntryPreview: React.FC<EntryProps> = ({
       key={entryId}
       className={`${
         mine ? "bg-green-200" : ""
-      } p-2 border-b last:border-b-0 border-color-gray-700
+      } p-2 border-b last:border-b-0 border-gray-700
           hover:bg-gray-200`}
     >
       <div>
@@ -165,23 +168,17 @@ const EntryPreview: React.FC<EntryProps> = ({
               <MdEdit />
             </button>
           ) : null}
-          <button onClick={iLike ? () => handleUnlike(myLike.id) : handleLike}>
+          <button>
             <div className="flex">
-              <div className="text-sm mr-1">{`${entry.likes.length}`}</div>
               <MdThumbUp
+                onClick={iLike ? () => handleUnlike(myLike.id) : handleLike}
                 style={{
                   color: iLike ? "blue" : "black",
                 }}
               />
+              <div className="text-sm mr-1">{`${entry.likes.length}`}</div>
             </div>
           </button>
-          {/* <button onClick={handleDetailsToggle}>
-            <MdSubtitles
-              style={{
-                color: displayDetails ? "blue" : "black",
-              }}
-            />
-          </button> */}
         </div>
       </div>
       <div onClick={handleDetailsToggle} style={{ cursor: "pointer" }}>
@@ -268,6 +265,10 @@ const EntryPreview: React.FC<EntryProps> = ({
           </div>
         </div>
       </div>
+
+      {currentUser ? (
+        <EntryComments entry={entry} currentUser={currentUser} />
+      ) : null}
     </div>
   );
 };

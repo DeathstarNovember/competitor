@@ -31,5 +31,8 @@ export {
   LIKE_ENTRY,
   UNLIKE_ENTRY,
   DELETE_ENTRY,
+  CREATE_COMMENT,
+  UPDATE_COMMENT,
+  DELETE_COMMENT,
 } from "./queries";
 export { sortAscByNumberProp, sortDescByNumberProp } from "./arrayUtils";
