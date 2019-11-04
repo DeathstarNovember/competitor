@@ -166,10 +166,11 @@ const CommentItem: React.FC<CommentProps> = ({
 };
 
 const EntryComments: React.FC<Props> = ({ entry, currentUser }) => {
-  const [displayComments, setDisplayComments] = useState(false);
-  const [displayCommentsForm, setDisplayCommentsForm] = useState(
-    !entry.comments.map(c => c.user.id).includes(currentUser.id)
-  );
+  const [displayComments, setDisplayComments] = useState(true);
+  const [displayCommentsForm, setDisplayCommentsForm] = useState(false);
+  // const [displayCommentsForm, setDisplayCommentsForm] = useState(
+  //   !entry.comments.map(c => c.user.id).includes(currentUser.id)
+  // );
   const setCommentsAndForm = (value: boolean) => {
     setDisplayComments(value);
     setDisplayCommentsForm(value);
