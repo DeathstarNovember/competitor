@@ -17,10 +17,25 @@ export type Like = {
   entryId: number;
 };
 
+export enum Visibility {
+  PUBLIC,
+  PRIVATE,
+}
+export type Comment = {
+  id: number;
+  user: { id: number; firstName: string };
+  entry: { id: number };
+  body: string;
+  visibility: Visibility;
+  insertedAt: string;
+  updatedAt: string;
+};
+
 export type Entry = {
   id: number;
   user: User;
   likes: Like[];
+  comments: Comment[];
   userWeight: number;
   userHeight: number;
   distance: number;

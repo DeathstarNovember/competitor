@@ -10,10 +10,25 @@ export const LIST_ENTRIES = gql`
         bioSex
         currentWeight
         currentHeight
+        warCry
       }
       likes {
         id
         userId
+      }
+      comments {
+        id
+        user {
+          id
+          firstName
+        }
+        entry {
+          id
+        }
+        body
+        insertedAt
+        updatedAt
+        visibility
       }
       userWeight
       userHeight
@@ -33,6 +48,52 @@ export const LIKE_ENTRY = gql`
       id
       entryId
       userId
+    }
+  }
+`;
+
+export const CREATE_COMMENT = gql`
+  mutation CreateComment(
+    $userId: ID!
+    $entryId: ID!
+    $body: String!
+    $visibility: Int!
+  ) {
+    createComment(
+      userId: $userId
+      entryId: $entryId
+      body: $body
+      visibility: $visibility
+    ) {
+      id
+      entry {
+        id
+      }
+      user {
+        id
+        firstName
+      }
+      insertedAt
+      updatedAt
+      body
+      visibility
+    }
+  }
+`;
+
+export const UPDATE_COMMENT = gql`
+  mutation UpdateComment($id: ID!, $body: String!, $visibility: Int!) {
+    updateComment(id: $id, body: $body, visibility: $visibility) {
+      id
+      entry {
+        id
+      }
+      user {
+        id
+        firstName
+      }
+      body
+      visibility
     }
   }
 `;
@@ -207,6 +268,13 @@ export const DELETE_ENTRY = gql`
     deleteEntry(id: $id)
   }
 `;
+
+export const DELETE_COMMENT = gql`
+  mutation deleteComment($id: ID!) {
+    deleteComment(id: $id)
+  }
+`;
+
 export const DELETE_USER = gql`
   mutation deleteUSER($id: ID!) {
     deleteUSER(id: $id)
@@ -244,6 +312,7 @@ export const LIST_USERS = gql`
       lastName
       currentWeight
       currentHeight
+      warCry
     }
   }
 `;
