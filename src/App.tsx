@@ -77,13 +77,13 @@ const App: React.FC = () => {
   const handleSignIn = (user: User) => {
     setCurrentUser(user);
   };
+  if (localUser && !currentUser) {
+    setCurrentUser(JSON.parse(localUser));
+  }
   const handleSignOut = () => {
     window.localStorage.removeItem("currentUser");
     setCurrentUser("");
   };
-  if (localUser && !currentUser) {
-    setCurrentUser(JSON.parse(localUser));
-  }
   const [displayUpdateUser, setDisplayUpdateUser] = useState(false);
   const toggleDisplayUpdateUser = () => {
     setDisplayUpdateUser(!displayUpdateUser);

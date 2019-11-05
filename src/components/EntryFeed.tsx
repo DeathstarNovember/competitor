@@ -22,7 +22,7 @@ const EntryFeed: React.FC<EntryFeedProps> = ({
     Public,
     Personal,
   }
-  const [displayOption, setDisplayOption] = useState(DisplayOptions.Personal);
+  const [displayOption, setDisplayOption] = useState(DisplayOptions.Public);
 
   //sort by lastName, then firstName, then completedAt
   const allEntries: Entry[] = entryList.sort((a: Entry, b: Entry) =>
