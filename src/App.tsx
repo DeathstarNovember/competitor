@@ -11,8 +11,8 @@ import Login from "./components/Login";
 import UpdateUser from "./components/UpdateUser";
 import Dashboard from "./components/Dashboard";
 import { User } from "./types";
-const uri = "http://localhost:4000/api";
-// const uri = "https://competition-prod.herokuapp.com/api";
+// const uri = "http://localhost:4000/api";
+const uri = "https://competition-prod.herokuapp.com/api";
 const client = new ApolloClient({
   link: ApolloLink.from([
     onError(({ graphQLErrors, networkError }) => {
