@@ -10,6 +10,9 @@ export const LIST_ENTRIES = gql`
         bioSex
         currentWeight
         currentHeight
+        follows {
+          id
+        }
         warCry
       }
       likes {
@@ -77,6 +80,20 @@ export const CREATE_COMMENT = gql`
       updatedAt
       body
       visibility
+    }
+  }
+`;
+
+export const CREATE_FOLLOW_LINK = gql`
+  mutation CreateFollowLink($followerId: ID!, $followedId: ID!) {
+    createFollowLink(followerId: $followerId, followedId: $followedId) {
+      id
+      follower {
+        id
+      }
+      followed {
+        id
+      }
     }
   }
 `;
@@ -276,8 +293,18 @@ export const DELETE_COMMENT = gql`
 `;
 
 export const DELETE_USER = gql`
-  mutation deleteUSER($id: ID!) {
+  mutation deleteUser($id: ID!) {
     deleteUSER(id: $id)
+  }
+`;
+export const DELETE_FOLLOW_LINK = gql`
+  mutation deleteFollowLink($id: ID!) {
+    deleteFollowLink(id: $id)
+  }
+`;
+export const DELETE_FOLLOW_LINK_W_USER_IDS = gql`
+  mutation DeleteFollowWithIds($followerId: ID!, $followedId: ID!) {
+    deleteFollowLinkWithIds(followedId: $followedId, followerId: $followerId)
   }
 `;
 
@@ -300,19 +327,44 @@ export const GET_USER = gql`
       warCry
       currentWeight
       currentHeight
+      follows {
+        id
+      }
+    }
+  }
+`;
+
+export const GET_USER_FOLLOWS = gql`
+  query getUserFollows($id: ID!) {
+    getUser(id: $id) {
+      follows {
+        id
+      }
+    }
+  }
+`;
+export const GET_USER_FOLLOWERS = gql`
+  query getUserFollowers($id: ID!) {
+    getUser(id: $id) {
+      followers {
+        id
+      }
     }
   }
 `;
 
 export const LIST_USERS = gql`
   {
-    list_users {
+    listUsers {
       id
       firstName
       lastName
       currentWeight
       currentHeight
       warCry
+      follows {
+        id
+      }
     }
   }
 `;

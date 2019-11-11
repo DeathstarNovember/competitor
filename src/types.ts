@@ -1,3 +1,12 @@
+export type Follow = {
+  id: number;
+  followerId: number;
+  followedId: number;
+};
+export type UserFollow = {
+  id: number;
+  __typename: string;
+};
 export type User = {
   id: number;
   firstName: string;
@@ -10,6 +19,8 @@ export type User = {
   currentHeight: number;
   warCry: string;
   biology: string;
+  followers: UserFollow[];
+  follows: UserFollow[];
 };
 export type Like = {
   id: number;

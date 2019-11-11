@@ -11,8 +11,8 @@ import Login from "./components/Login";
 import UpdateUser from "./components/UpdateUser";
 import Dashboard from "./components/Dashboard";
 import { User } from "./types";
-// const uri = "http://localhost:4000/api";
-const uri = "https://competition-prod.herokuapp.com/api";
+const uri = "http://localhost:4000/api";
+// const uri = "https://competition-prod.herokuapp.com/api";
 const client = new ApolloClient({
   link: ApolloLink.from([
     onError(({ graphQLErrors, networkError }) => {
@@ -32,15 +32,15 @@ const client = new ApolloClient({
 });
 
 type AppBarProps = {
-  currentUser: any;
+  currentUser?: User;
   onSignOut: VoidFunction;
-  toggleDisplayUpdateUser: VoidFunction;
+  toggleDisplayUpdateUserForm: VoidFunction;
 };
 
 const AppBar: React.FC<AppBarProps> = ({
   currentUser,
   onSignOut,
-  toggleDisplayUpdateUser,
+  toggleDisplayUpdateUserForm,
 }) => {
   return (
     <div className="py-2 px-3 bg-gray-500 flex justify-between shadow-md text-gray-700">
@@ -48,7 +48,10 @@ const AppBar: React.FC<AppBarProps> = ({
         {currentUser ? (
           <>
             <div className="text-gray-200 pr-2">Signed in as:</div>
-            <div className="cursor-pointer" onClick={toggleDisplayUpdateUser}>
+            <div
+              className="cursor-pointer"
+              onClick={toggleDisplayUpdateUserForm}
+            >
               {currentUser.firstName} {currentUser.lastName}
             </div>
           </>
@@ -70,23 +73,30 @@ const AppBar: React.FC<AppBarProps> = ({
   );
 };
 
-const App: React.FC = () => {
-  const [currentUser, setCurrentUser] = useState<User | "">("");
-  const localUser = window.localStorage.getItem("currentUser");
+export const setLocalUser = (user: User) => {
+  window.localStorage.setItem("currentUser", JSON.stringify(user));
+};
+export const removeLocalUser = () => {
+  window.localStorage.removeItem("currentUser");
+};
 
-  const handleSignIn = (user: User) => {
-    setCurrentUser(user);
-  };
+const App: React.FC = () => {
+  const [currentUser, setCurrentUser] = useState<User | undefined>(undefined);
+  const localUser = window.localStorage.getItem("currentUser");
   if (localUser && !currentUser) {
     setCurrentUser(JSON.parse(localUser));
   }
-  const handleSignOut = () => {
-    window.localStorage.removeItem("currentUser");
-    setCurrentUser("");
+  const handleSignIn = (user: User) => {
+    setLocalUser(user);
+    setCurrentUser(user);
   };
-  const [displayUpdateUser, setDisplayUpdateUser] = useState(false);
-  const toggleDisplayUpdateUser = () => {
-    setDisplayUpdateUser(!displayUpdateUser);
+  const handleSignOut = () => {
+    removeLocalUser();
+    setCurrentUser(undefined);
+  };
+  const [displayUpdateUserForm, setDisplayUpdateUserForm] = useState(false);
+  const toggleDisplayUpdateUserForm = () => {
+    setDisplayUpdateUserForm(!displayUpdateUserForm);
   };
 
   return (
@@ -96,18 +106,18 @@ const App: React.FC = () => {
           <AppBar
             currentUser={currentUser}
             onSignOut={handleSignOut}
-            toggleDisplayUpdateUser={toggleDisplayUpdateUser}
+            toggleDisplayUpdateUserForm={toggleDisplayUpdateUserForm}
           />
           {currentUser ? (
-            displayUpdateUser ? (
+            displayUpdateUserForm ? (
               <UpdateUser
                 userId={currentUser.id}
-                currentUser={currentUser}
+                currentUserId={currentUser.id}
                 updateCurrentUser={handleSignIn}
-                setDisplay={setDisplayUpdateUser}
+                setDisplay={setDisplayUpdateUserForm}
               />
             ) : (
-              <Dashboard currentUser={currentUser} />
+              <Dashboard currentUserId={currentUser.id} />
             )
           ) : (
             <Login selectUser={handleSignIn} />

@@ -34,5 +34,10 @@ export {
   CREATE_COMMENT,
   UPDATE_COMMENT,
   DELETE_COMMENT,
+  CREATE_FOLLOW_LINK,
+  DELETE_FOLLOW_LINK,
+  DELETE_FOLLOW_LINK_W_USER_IDS,
+  GET_USER_FOLLOWS,
+  GET_USER_FOLLOWERS,
 } from "./queries";
 export { sortAscByNumberProp, sortDescByNumberProp } from "./arrayUtils";

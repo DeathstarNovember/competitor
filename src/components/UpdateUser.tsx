@@ -8,14 +8,14 @@ import { ExecutionResult } from "graphql";
 import { parseISO, format } from "date-fns/esm";
 type Props = {
   userId: number;
-  currentUser: User;
+  currentUserId: number;
   updateCurrentUser: (arg0: User) => void;
   setDisplay: (arg0: boolean) => void;
 };
 
 const UpdateUser: React.FC<Props> = ({
   userId,
-  currentUser,
+  currentUserId,
   updateCurrentUser,
   setDisplay,
 }) => {
@@ -58,7 +58,7 @@ const UpdateUser: React.FC<Props> = ({
       }> = await updateUserMutation({
         variables: payload,
       });
-      if (currentUser.id === user.id && result.data) {
+      if (currentUserId === user.id && result.data) {
         updateCurrentUser({ ...result.data.updateUser });
       }
       setDisplay(false);

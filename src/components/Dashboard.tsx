@@ -4,9 +4,9 @@ import EntryFeed from "./EntryFeed";
 import { useQuery } from "@apollo/react-hooks";
 import { LIST_ENTRIES } from "../util";
 type Props = {
-  currentUser: User;
+  currentUserId: number;
 };
-const Dashboard: React.FC<Props> = ({ currentUser }) => {
+const Dashboard: React.FC<Props> = ({ currentUserId }) => {
   const { loading, error, data } = useQuery(LIST_ENTRIES, {
     pollInterval: 30 * 1000,
   });
@@ -38,7 +38,7 @@ const Dashboard: React.FC<Props> = ({ currentUser }) => {
     <div className={"max-w-md mx-auto p-6"}>
       {allEntries.length ? (
         <EntryFeed
-          currentUser={currentUser}
+          currentUserId={currentUserId}
           entryList={allEntries}
           toggleCreateEntryForm={toggleCreateEntryForm}
           displayCreateEntryForm={displayCreateEntryForm}

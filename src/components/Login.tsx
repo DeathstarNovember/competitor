@@ -26,7 +26,7 @@ const ChooseMyself: React.FC<ChooseProps> = ({ onSelect }) => {
   return (
     <div className="p-6 bg-white rounded-lg shadow-xl">
       {data
-        ? data.list_users.map((user: User, userId: number) => (
+        ? data.listUsers.map((user: User, userId: number) => (
             <div
               key={userId}
               onClick={() => onSelect(user)}
@@ -47,12 +47,9 @@ type Props = {
 
 const Login: React.FC<Props> = ({ selectUser }) => {
   // const [currentUser, setCurrentUser] = useLocalStorage('CURRENT_USER', '')
-
   // console.warn('Login', { props, currentUser })
-
   const handleSelect = (user: User) => {
     if (selectUser) {
-      window.localStorage.setItem("currentUser", JSON.stringify(user));
       selectUser(user);
     }
   };

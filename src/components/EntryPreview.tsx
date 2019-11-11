@@ -20,7 +20,7 @@ type EntryProps = {
   entry: Entry;
   entryId: number;
   mine?: boolean;
-  currentUser?: User;
+  currentUser: User;
 };
 const EntryPreview: React.FC<EntryProps> = ({
   entry,
@@ -28,11 +28,11 @@ const EntryPreview: React.FC<EntryProps> = ({
   mine = false,
   currentUser,
 }) => {
-  const currentUserId = currentUser ? currentUser.id : 0;
+  const currentUserId = currentUser.id;
   const likerIds = entry.likes
     .map(like => like.userId)
     .filter((v, i, a) => a.indexOf(v) === i);
-  const iLike = currentUser ? likerIds.includes(currentUser.id) : false;
+  const iLike = currentUser ? likerIds.includes(currentUserId) : false;
   const myLike: Like | undefined = iLike
     ? entry.likes.find(like => like.userId === currentUserId) || {
         id: 0,
@@ -46,7 +46,6 @@ const EntryPreview: React.FC<EntryProps> = ({
       const cachedData: { listEntries: Entry[] } | null = cache.readQuery({
         query: LIST_ENTRIES,
       });
-      // console.warn({ cachedData }, { deleteEntry: entry.id });
       cache.writeQuery({
         query: LIST_ENTRIES,
         data: {
@@ -71,15 +70,13 @@ const EntryPreview: React.FC<EntryProps> = ({
                 ...cachedData.listEntries.filter(e => e.id !== entry.id),
                 {
                   ...entry,
-                  likes: currentUser
-                    ? [
-                        ...entry.likes.filter(
-                          like =>
-                            like.userId !== currentUser.id &&
-                            like.entryId !== entry.id
-                        ),
-                      ]
-                    : [...entry.likes],
+                  likes: [
+                    ...entry.likes.filter(
+                      like =>
+                        like.userId !== currentUser.id &&
+                        like.entryId !== entry.id
+                    ),
+                  ],
                 },
               ]
             : [],
@@ -95,37 +92,33 @@ const EntryPreview: React.FC<EntryProps> = ({
     deleteEntryMutation({ variables: { id } });
   };
   const handleLike = async () => {
-    if (currentUser) {
-      try {
-        const result: ExecutionResult<{
-          likeEntry: Like;
-        }> = await likeEntryMutation({
-          variables: { userId: currentUserId, entryId: entry.id },
-          update(cache, { data: { likeEntry } }) {
-            const cachedData: { listEntries: Entry[] } | null = cache.readQuery(
-              {
-                query: LIST_ENTRIES,
-              }
-            );
-            cache.writeQuery({
-              query: LIST_ENTRIES,
-              data: {
-                listEntries: cachedData
-                  ? [
-                      ...cachedData.listEntries.filter(
-                        cachedEntry => cachedEntry.id !== entry.id
-                      ),
-                      { ...entry, likes: [...entry.likes, likeEntry] },
-                    ]
-                  : "No Data",
-              },
-            });
-          },
-        });
-        console.warn({ result });
-      } catch (err) {
-        console.warn({ err });
-      }
+    try {
+      const result: ExecutionResult<{
+        likeEntry: Like;
+      }> = await likeEntryMutation({
+        variables: { userId: currentUserId, entryId: entry.id },
+        update(cache, { data: { likeEntry } }) {
+          const cachedData: { listEntries: Entry[] } | null = cache.readQuery({
+            query: LIST_ENTRIES,
+          });
+          cache.writeQuery({
+            query: LIST_ENTRIES,
+            data: {
+              listEntries: cachedData
+                ? [
+                    ...cachedData.listEntries.filter(
+                      cachedEntry => cachedEntry.id !== entry.id
+                    ),
+                    { ...entry, likes: [...entry.likes, likeEntry] },
+                  ]
+                : "No Data",
+            },
+          });
+        },
+      });
+      console.warn({ result });
+    } catch (err) {
+      console.warn({ err });
     }
   };
   const handleUnlike = (likeId: number) => {
@@ -146,7 +139,7 @@ const EntryPreview: React.FC<EntryProps> = ({
       key={entryId}
       className={`${
         mine ? "bg-green-200" : ""
-      } p-2 border-b last:border-b-0 border-gray-700
+      } px-2 border-b last:border-b-0 border-gray-700
           hover:bg-gray-200`}
     >
       <div>
@@ -183,7 +176,7 @@ const EntryPreview: React.FC<EntryProps> = ({
       </div>
       <div onClick={handleDetailsToggle} style={{ cursor: "pointer" }}>
         <div className="flex flex-1 justify-between">
-          <div>{`${entry.user.firstName} ${entry.user.lastName[0]}.`}</div>
+          {/* <div>{`${entry.user.firstName} ${entry.user.lastName[0]}.`}</div> */}
           <div className="italic text-sm">{`${
             displayWeightCorrected ? "Weight Corrected" : "Raw Scores"
           }`}</div>
@@ -265,10 +258,7 @@ const EntryPreview: React.FC<EntryProps> = ({
           </div>
         </div>
       </div>
-
-      {currentUser ? (
-        <EntryComments entry={entry} currentUser={currentUser} />
-      ) : null}
+      <EntryComments entry={entry} currentUser={currentUser} />
     </div>
   );
 };
