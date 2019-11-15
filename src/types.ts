@@ -13,6 +13,8 @@ export type Follow = {
 };
 export type UserFollow = {
   id: number;
+  firstName: string;
+  lastName: string;
   __typename: string;
 };
 export type User = {
@@ -61,6 +63,7 @@ export type Entry = {
   completedAt: string;
   maxHr?: number;
   avgHr?: number;
+  invitations?: ChallengeInvite[];
 };
 
 export type ChallengeObjective = {
@@ -68,12 +71,15 @@ export type ChallengeObjective = {
   objectiveType: ObjectiveTypes;
   resultType: ResultTypes;
   value: number;
+  challenge: { id: number };
 };
 
 export type ChallengeInvite = {
   id: number;
   invitee: User;
   status: InviteStatus;
+  response: Entry;
+  challenge: { id: number };
 };
 export type Challenge = {
   id: number;

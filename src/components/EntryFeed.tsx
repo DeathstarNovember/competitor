@@ -8,10 +8,14 @@ import { useQuery } from "@apollo/react-hooks";
 import { LIST_USERS, LIST_ENTRIES } from "../util";
 
 type EntryFeedProps = {
+  changeDashboardDisplayOption: (arg0: number) => void;
   currentUserId?: number;
 };
 
-const EntryFeed: React.FC<EntryFeedProps> = ({ currentUserId }) => {
+const EntryFeed: React.FC<EntryFeedProps> = ({
+  currentUserId,
+  changeDashboardDisplayOption,
+}) => {
   enum DisplayOptions {
     Public,
     Following,
@@ -149,14 +153,18 @@ const EntryFeed: React.FC<EntryFeedProps> = ({ currentUserId }) => {
         </div>
         {currentUser && displayCreateEntryForm ? (
           <CreateEntry
-            currentUser={currentUser}
+            currentUserId={currentUser.id}
             toggleDisplayCreateEntryForm={toggleCreateEntryForm}
           />
         ) : null}
         {displayOption === DisplayOptions.Personal ? (
           <div className="p-6 bg-white rounded-lg shadow-xl">
             {myEntries.length ? (
-              <GroupedEntryFeed entries={myEntries} currentUser={currentUser} />
+              <GroupedEntryFeed
+                entries={myEntries}
+                currentUser={currentUser}
+                changeDashboardDisplayOption={changeDashboardDisplayOption}
+              />
             ) : (
               <div className="text-lg">No entries yet...</div>
             )}
@@ -168,6 +176,7 @@ const EntryFeed: React.FC<EntryFeedProps> = ({ currentUserId }) => {
               <GroupedEntryFeed
                 entries={allEntries}
                 currentUser={currentUser}
+                changeDashboardDisplayOption={changeDashboardDisplayOption}
               />
             ) : (
               <div className="text-lg">No entries yet...</div>
@@ -180,6 +189,7 @@ const EntryFeed: React.FC<EntryFeedProps> = ({ currentUserId }) => {
               <GroupedEntryFeed
                 entries={myFollowedEntries}
                 currentUser={currentUser}
+                changeDashboardDisplayOption={changeDashboardDisplayOption}
               />
             ) : (
               <div className="text-lg">No entries yet...</div>

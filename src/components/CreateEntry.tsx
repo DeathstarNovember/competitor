@@ -1,19 +1,21 @@
 import React from "react";
-import { useMutation } from "@apollo/react-hooks";
+import { useMutation, useQuery } from "@apollo/react-hooks";
 import useForm from "react-hook-form";
-import { User, Entry } from "../types";
+import { User, Entry, ChallengeInvite } from "../types";
 import { parse, format, set } from "date-fns";
-import { CREATE_ENTRY, LIST_ENTRIES } from "../util";
+import { CREATE_ENTRY, LIST_ENTRIES, GET_USER } from "../util";
 import { ExecutionResult } from "graphql";
 
 type Props = {
-  currentUser: User;
+  currentUserId: number;
+  invitation?: ChallengeInvite;
   updateInvitation?: (arg0: number) => void;
   toggleDisplayCreateEntryForm: () => void;
 };
 
 const CreateEntry: React.FC<Props> = ({
-  currentUser,
+  currentUserId,
+  invitation,
   updateInvitation,
   toggleDisplayCreateEntryForm,
 }) => {
@@ -22,77 +24,92 @@ const CreateEntry: React.FC<Props> = ({
       const cachedData: { listEntries: Entry[] } | null = cache.readQuery({
         query: LIST_ENTRIES,
       });
-      if (updateInvitation) {
-        updateInvitation(createEntry.id);
-      }
       // console.warn({ cachedData }, { createEntry });
-      cache.writeQuery({
-        query: LIST_ENTRIES,
-        data: {
-          listEntries: cachedData
-            ? [...cachedData.listEntries, createEntry]
-            : [{ ...createEntry }],
-        },
-      });
+      if (cachedData) {
+        cache.writeQuery({
+          query: LIST_ENTRIES,
+          data: {
+            listEntries: [...cachedData.listEntries, createEntry],
+          },
+        });
+      }
     },
   });
 
   const { handleSubmit, register, errors } = useForm();
-
+  const {
+    data: userData,
+    error: userError,
+    loading: userLoading,
+  } = useQuery(GET_USER, { variables: { id: currentUserId } });
+  if (userLoading) {
+    return (
+      <div className="max-w-md mx-auto p-6">
+        <div className="p-6 rounded-lg shadow-xl">User Loading....</div>
+      </div>
+    );
+  }
+  if (userError) {
+    return (
+      <div className="p-6 bg-red-200  rounded-lg shadow-xl text-red-900">
+        Error: {JSON.stringify(userError)}
+      </div>
+    );
+  }
+  const currentUser: User = { ...userData.getUser };
   // console.warn({ currentUser });
 
   const onSubmit = async (values: any) => {
-    if (currentUser) {
-      // console.warn({ values });
+    // console.warn({ values });
 
-      const time =
-        Number(values.duration_h) * 60 * 60 +
-        Number(values.duration_m) * 60 +
-        Number(values.duration_s);
+    const time =
+      Number(values.duration_h) * 60 * 60 +
+      Number(values.duration_m) * 60 +
+      Number(values.duration_s);
 
-      const completedDate = parse(
-        values.completed_date,
-        "MM/dd/yyyy",
-        new Date()
-      );
-      const completedTime = parse(values.completed_time, "HH:mm", new Date());
+    const completedDate = parse(
+      values.completed_date,
+      "MM/dd/yyyy",
+      new Date()
+    );
+    const completedTime = parse(values.completed_time, "HH:mm", new Date());
 
-      const completedAt = set(completedDate, {
-        hours: completedTime.getHours(),
-        minutes: completedTime.getMinutes(),
+    const completedAt = set(completedDate, {
+      hours: completedTime.getHours(),
+      minutes: completedTime.getMinutes(),
+    });
+
+    const userWeight = currentUser.currentWeight;
+    const userHeight = currentUser.currentHeight;
+    // const hrInfo: { maxHr?: number; avgHr?: number } = {};
+    // if (values.maxHr) hrInfo["maxHr"] = values.maxHr;
+    // if (values.avgHr) hrInfo["avgHr"] = values.avgHr;
+    const payload = {
+      userId: Number(currentUser.id),
+      time: Number(time),
+      distance: Number(values.distance),
+      strokeRate: Number(values.strokeRate),
+      completedAt: format(completedAt, "yyyy-MM-dd HH:mm:ss"),
+      userWeight,
+      userHeight,
+      // ...hrInfo,
+      maxHr: Number(values.maxHr),
+      avgHr: Number(values.avgHr),
+    };
+
+    // console.warn({ payload });
+
+    try {
+      const result: ExecutionResult<any> = await createEntryMutation({
+        variables: payload,
       });
-
-      const userWeight = currentUser.currentWeight;
-      const userHeight = currentUser.currentHeight;
-      // const hrInfo: { maxHr?: number; avgHr?: number } = {};
-      // if (values.maxHr) hrInfo["maxHr"] = values.maxHr;
-      // if (values.avgHr) hrInfo["avgHr"] = values.avgHr;
-      const payload = {
-        userId: Number(currentUser.id),
-        time: Number(time),
-        distance: Number(values.distance),
-        strokeRate: Number(values.strokeRate),
-        completedAt: format(completedAt, "yyyy-MM-dd HH:mm:ss"),
-        userWeight,
-        userHeight,
-        // ...hrInfo,
-        maxHr: Number(values.maxHr),
-        avgHr: Number(values.avgHr),
-      };
-
-      // console.warn({ payload });
-
-      try {
-        const result: ExecutionResult<any> = await createEntryMutation({
-          variables: payload,
-        });
-        console.warn({ result });
-        toggleDisplayCreateEntryForm();
-      } catch (err) {
-        console.warn({ err });
-      }
-    } else {
-      console.error("No current user", currentUser);
+      console.warn({ entryResult: { ...result } });
+      toggleDisplayCreateEntryForm();
+    } catch (err) {
+      console.warn({ entryError: { ...err } });
+    }
+    if (updateInvitation && invitation) {
+      updateInvitation(invitation.id);
     }
   };
 

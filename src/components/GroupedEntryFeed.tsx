@@ -12,6 +12,7 @@ import {
 type GroupedEntryFeedProps = {
   entries: Entry[];
   currentUser: User;
+  changeDashboardDisplayOption: (arg0: number) => void;
 };
 
 const groupEntriesByDate = (arr: Entry[]) => {
@@ -41,10 +42,12 @@ type UserEntryGroupProps = {
   currentUser: User;
   entryGroup: Entry[];
   userKey: string;
+  changeDashboardDisplayOption: (arg0: number) => void;
 };
 const UserEntryGroup: React.FC<UserEntryGroupProps> = ({
   currentUser,
   entryGroup,
+  changeDashboardDisplayOption,
 }) => {
   const entryGroupUser: User = entryGroup[0].user;
   const userLabel = `${entryGroupUser.firstName} ${entryGroupUser.lastName}`;
@@ -144,9 +147,9 @@ const UserEntryGroup: React.FC<UserEntryGroupProps> = ({
           <EntryPreview
             key={`${entry.user.id}${entryId}`}
             entry={entry}
-            entryId={entryId}
             mine={mine}
             currentUser={currentUser}
+            changeDashboardDisplayOption={changeDashboardDisplayOption}
           />
         ))}
       </div>
@@ -157,6 +160,7 @@ const UserEntryGroup: React.FC<UserEntryGroupProps> = ({
 const GroupedEntryFeed: React.FC<GroupedEntryFeedProps> = ({
   entries,
   currentUser,
+  changeDashboardDisplayOption,
 }) => {
   const dateGroupedEntries: { [key: string]: Entry[] } = groupEntriesByDate(
     entries
@@ -181,6 +185,7 @@ const GroupedEntryFeed: React.FC<GroupedEntryFeedProps> = ({
                   currentUser={currentUser}
                   entryGroup={userGroupedEntries[userKey]}
                   userKey={userKey}
+                  changeDashboardDisplayOption={changeDashboardDisplayOption}
                 />
               ))}
             </div>

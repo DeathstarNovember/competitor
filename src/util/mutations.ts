@@ -49,12 +49,14 @@ export const UPDATE_OBJECTIVE = gql`
     $objectiveType: Int!
     $resultType: Int!
     $value: Int!
+    $challengeId: ID!
   ) {
     updateObjective(
       id: $id
       objectiveType: $objectiveType
       resultType: $resultType
       value: $value
+      challengeId: $challengeId
     ) {
       ...Objective
     }

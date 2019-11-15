@@ -3,27 +3,18 @@ import {
   UserProfileFrag,
   UserFollowsFrag,
   UserFollowersFrag,
-  EntryDetailsFrag,
-  EntryUserFrag,
-  EntryLikesFrag,
-  EntryCommentsFrag,
   ChallengeFrag,
+  EntryFrag,
+  InvitationFrag,
 } from "./fragments";
 
 export const LIST_ENTRIES = gql`
   {
     listEntries {
-      id
-      ...EntryUser
-      ...EntryLikes
-      ...EntryComments
-      ...EntryDetails
+      ...Entry
     }
   }
-  ${EntryUserFrag}
-  ${EntryLikesFrag}
-  ${EntryCommentsFrag}
-  ${EntryDetailsFrag}
+  ${EntryFrag}
 `;
 
 export const LIST_CHALLENGES = gql`
@@ -33,6 +24,23 @@ export const LIST_CHALLENGES = gql`
     }
   }
   ${ChallengeFrag}
+`;
+
+export const GET_CHALLENGE = gql`
+  query getChallenge($id: ID!) {
+    getChallenge(id: $id) {
+      ...Challenge
+    }
+  }
+  ${ChallengeFrag}
+`;
+export const GET_INVITATION = gql`
+  query getInvitation($id: ID!) {
+    getInvitation(id: $id) {
+      ...Invitation
+    }
+  }
+  ${InvitationFrag}
 `;
 
 export const GET_USER = gql`

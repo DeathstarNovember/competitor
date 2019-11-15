@@ -4,6 +4,8 @@ export const UserFollowsFrag = gql`
   fragment UserFollows on User {
     follows {
       id
+      firstName
+      LastName
     }
   }
 `;
@@ -12,9 +14,13 @@ export const FollowLinkFrag = gql`
     id
     follower {
       id
+      firstName
+      LastName
     }
     followed {
       id
+      firstName
+      LastName
     }
   }
 `;
@@ -22,6 +28,8 @@ export const UserFollowersFrag = gql`
   fragment UserFollowers on User {
     followers {
       id
+      firstName
+      LastName
     }
   }
 `;
@@ -107,20 +115,14 @@ export const EntryDetailsFrag = gql`
     avgHr
   }
 `;
-export const EntryFrag = gql`
-  fragment Entry on Entry {
-    id
-    ...EntryDetails
-    ...EntryUser
-    ...EntryComments
-    ...EntryLikes
-  }
-`;
+
 export const InvitationIviteeFrag = gql`
   fragment InvitationInvitee on Invitation {
     invitee {
       id
-      ...UserNames
+      firstName
+      lastName
+      username
     }
   }
   ${UserNamesFrag}
@@ -141,7 +143,14 @@ export const InvitationResponseFrag = gql`
   fragment InvitationResponse on Invitation {
     response {
       id
-      ...EntryDetails
+      userWeight
+      userHeight
+      distance
+      time
+      strokeRate
+      completedAt
+      maxHr
+      avgHr
     }
   }
   ${EntryDetailsFrag}
@@ -150,18 +159,42 @@ export const InvitationFrag = gql`
   fragment Invitation on Invitation {
     id
     status
+    challenge {
+      id
+    }
     ...InvitationInvitee
     ...InvitationResponse
   }
   ${InvitationIviteeFrag}
   ${InvitationResponseFrag}
 `;
+export const EntryFrag = gql`
+  fragment Entry on Entry {
+    id
+    ...EntryDetails
+    ...EntryUser
+    ...EntryComments
+    ...EntryLikes
+    invitations {
+      ...Invitation
+    }
+  }
+  ${InvitationFrag}
+  ${EntryDetailsFrag}
+  ${EntryUserFrag}
+  ${EntryCommentsFrag}
+  ${EntryLikesFrag}
+`;
+
 export const ObjectiveDetailsFrag = gql`
   fragment ObjectiveDetails on Objective {
     id
     objectiveType
     resultType
     value
+    challenge {
+      id
+    }
   }
 `;
 export const ObjectiveFrag = gql`
@@ -184,9 +217,19 @@ export const ChallengeInfoFrag = gql`
 `;
 export const ChallengeModeratorFrag = gql`
   fragment ChallengeModerator on Challenge {
-    ...UserProfile
+    moderator {
+      id
+      bioSex
+      currentWeight
+      currentHeight
+      dob
+      email
+      warCry
+      firstName
+      lastName
+      username
+    }
   }
-  ${UserProfileFrag}
 `;
 export const ChallengeObjectiveFrag = gql`
   fragment ChallengeObjective on Challenge {
@@ -201,12 +244,14 @@ export const ChallengeInvitationsFrag = gql`
     invitations {
       id
       status
+      ...InvitationResponse
       invitee {
         id
         firstName
       }
     }
   }
+  ${InvitationResponseFrag}
 `;
 export const ChallengeFrag = gql`
   fragment Challenge on Challenge {

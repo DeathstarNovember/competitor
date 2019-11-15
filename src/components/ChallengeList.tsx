@@ -1,24 +1,18 @@
-import React, { useState } from "react";
+import React from "react";
 import { useQuery } from "@apollo/react-hooks";
 import { LIST_CHALLENGES } from "../util";
-import { Challenge } from "../types";
+import { Challenge, User } from "../types";
 import ChallengeTile from "./ChallengeTile";
 
 type ChallengeListProps = {
-  currentUserId: number;
+  currentUser: User;
 };
-const ChallengeList: React.FC<ChallengeListProps> = ({ currentUserId }) => {
+const ChallengeList: React.FC<ChallengeListProps> = ({ currentUser }) => {
   const {
     data: challengesData,
     loading: challengesLoading,
     error: challengesError,
   } = useQuery(LIST_CHALLENGES);
-  const [displayCreateChallengeForm, setDisplayCreateChallengeForm] = useState(
-    false
-  );
-  const toggleCreateChallengeForm = () => {
-    setDisplayCreateChallengeForm(!displayCreateChallengeForm);
-  };
   if (challengesLoading) {
     return (
       <div className="max-w-md mx-auto p-6">
@@ -33,10 +27,10 @@ const ChallengeList: React.FC<ChallengeListProps> = ({ currentUserId }) => {
       </div>
     );
   }
-  const challenges: Challenge[] = [...challengesData.listChallenges];
+  const challenges: Challenge[] = [...challengesData.listChallenges].reverse();
   const myChallenges: Challenge[] = challenges.filter(challenge =>
     challenge.invitations.some(
-      invitation => invitation.invitee.id === currentUserId
+      invitation => invitation.invitee.id === currentUser.id
     )
   );
   return (
@@ -47,7 +41,7 @@ const ChallengeList: React.FC<ChallengeListProps> = ({ currentUserId }) => {
             <ChallengeTile
               key={`challengeTile${challenge.id}`}
               challenge={challenge}
-              currentUserId={currentUserId}
+              currentUser={currentUser}
             />
           ))
         : "No Challenge Invites Yet..."}

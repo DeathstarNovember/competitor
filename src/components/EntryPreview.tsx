@@ -7,26 +7,40 @@ import {
   LIKE_ENTRY,
   DELETE_ENTRY,
   UNLIKE_ENTRY,
+  LIST_CHALLENGES,
 } from "../util";
-import { Entry, User, Like } from "../types";
+import { Entry, User, Like, Challenge, ChallengeObjective } from "../types";
 import { MdEdit, MdFunctions, MdAccessTime, MdThumbUp } from "react-icons/md";
 import { EntryCalculations } from "../util/calculations";
 import UpdateEntry from "./UpdateEntry";
 import EntryComments from "./EntryComments";
-import { format } from "date-fns/esm";
+import { format, addDays } from "date-fns";
 import { ExecutionResult } from "graphql";
+import {
+  CREATE_CHALLENGE,
+  UPDATE_INVITATION,
+  UPDATE_OBJECTIVE,
+} from "../util/mutations";
+import {
+  ChallengeStatus,
+  InviteStatus,
+  ObjectiveTypes,
+  ResultTypes,
+  DashboardDisplayOptions,
+} from "../enums";
+import { GiTrophy } from "react-icons/gi";
 
 type EntryProps = {
   entry: Entry;
-  entryId: number;
   mine?: boolean;
   currentUser: User;
+  changeDashboardDisplayOption: (arg0: number) => void;
 };
 const EntryPreview: React.FC<EntryProps> = ({
   entry,
-  entryId,
   mine = false,
   currentUser,
+  changeDashboardDisplayOption,
 }) => {
   const currentUserId = currentUser.id;
   const myLike: Like | undefined = entry.likes.find(
@@ -48,7 +62,26 @@ const EntryPreview: React.FC<EntryProps> = ({
       });
     },
   });
-  const [likeEntryMutation] = useMutation(LIKE_ENTRY);
+  const [likeEntryMutation] = useMutation(LIKE_ENTRY, {
+    update(cache, { data: { likeEntry } }) {
+      const cachedData: { listEntries: Entry[] } | null = cache.readQuery({
+        query: LIST_ENTRIES,
+      });
+      if (cachedData) {
+        cache.writeQuery({
+          query: LIST_ENTRIES,
+          data: {
+            listEntries: [
+              ...cachedData.listEntries.filter(
+                cachedEntry => cachedEntry.id !== entry.id
+              ),
+              { ...entry, likes: [...entry.likes, likeEntry] },
+            ],
+          },
+        });
+      }
+    },
+  });
   const [unlikeEntryMutation] = useMutation(UNLIKE_ENTRY, {
     update(cache) {
       const cachedData: { listEntries: Entry[] } | null = cache.readQuery({
@@ -65,7 +98,7 @@ const EntryPreview: React.FC<EntryProps> = ({
                   likes: [
                     ...entry.likes.filter(
                       like =>
-                        like.userId !== currentUser.id &&
+                        like.userId !== currentUserId &&
                         like.entryId !== entry.id
                     ),
                   ],
@@ -76,39 +109,98 @@ const EntryPreview: React.FC<EntryProps> = ({
       });
     },
   });
+  const [createChallengeMutation] = useMutation(CREATE_CHALLENGE, {
+    update(cache, { data: { createChallenge } }) {
+      const cachedData: {
+        listChallenges: Challenge[];
+      } | null = cache.readQuery({
+        query: LIST_CHALLENGES,
+      });
+      // console.warn({ cachedData }, { createChallenge });
+      if (cachedData) {
+        cache.writeQuery({
+          query: LIST_CHALLENGES,
+          data: {
+            listChallenges: [...cachedData.listChallenges, createChallenge],
+          },
+        });
+      }
+    },
+  });
+  const handleCreateChallenge = async () => {
+    const variables = {
+      name: `${entry.distance} in ${formatTimeMS(entry.time)}`,
+      description: `${entry.user.firstName} challenges`,
+      moderatorId: currentUserId,
+      status: ChallengeStatus.PENDING,
+      startDate: format(new Date(), "yyyy-MM-dd HH:mm:ss"),
+      duration: 1,
+      endDate: format(addDays(new Date(), 1), "yyyy-MM-dd HH:mm:ss"),
+    };
+    try {
+      const challengeResult: ExecutionResult<any> = await createChallengeMutation(
+        { variables }
+      );
+      console.warn({ challengeResult });
+      updateInvitation({ ...challengeResult.data.createChallenge });
+      updateObjective({ ...challengeResult.data.createChallenge.objective });
+      changeDashboardDisplayOption(DashboardDisplayOptions.Challenges);
+    } catch (err) {
+      console.warn({ err });
+    }
+  };
+  const [updateObjectiveMutation] = useMutation(UPDATE_OBJECTIVE);
+  const updateObjective = async (objective: ChallengeObjective) => {
+    console.warn({ Objective: { ...objective } });
+    try {
+      const result = await updateObjectiveMutation({
+        variables: {
+          id: objective.id,
+          value: entry.distance,
+          objectiveType: ObjectiveTypes.DISTANCE,
+          resultType: ResultTypes.TIME,
+          challengeId: objective.challenge.id,
+        },
+      });
 
+      console.warn({ updateObjectiveResult: { result } });
+    } catch (err) {
+      console.warn({ err });
+    }
+  };
+  const [updateInvitationMutation] = useMutation(UPDATE_INVITATION);
+  const updateInvitation = async (challenge: Challenge) => {
+    try {
+      const result = await updateInvitationMutation({
+        variables: {
+          id: challenge.invitations[0].id,
+          status: InviteStatus.ACCEPTED,
+          inviteeId: currentUserId,
+          challengeId: challenge.id,
+          responseId: entry.id,
+        },
+      });
+      console.warn({ updateInvitationResult: { result } });
+      console.warn({ challenge: { ...challenge } });
+    } catch (err) {
+      console.warn({ err });
+    }
+  };
   const [displayWeightCorrected, setDisplayWeightCorrected] = useState(false);
   const [displayForm, setDisplayForm] = useState(false);
   const [displayDetails, setDisplayDetails] = useState(false);
   const handleDelete = (id: number) => {
     deleteEntryMutation({ variables: { id } });
   };
+
   const handleLike = async () => {
     try {
-      const result: ExecutionResult<{
+      const entryResult: ExecutionResult<{
         likeEntry: Like;
       }> = await likeEntryMutation({
         variables: { userId: currentUserId, entryId: entry.id },
-        update(cache, { data: { likeEntry } }) {
-          const cachedData: { listEntries: Entry[] } | null = cache.readQuery({
-            query: LIST_ENTRIES,
-          });
-          cache.writeQuery({
-            query: LIST_ENTRIES,
-            data: {
-              listEntries: cachedData
-                ? [
-                    ...cachedData.listEntries.filter(
-                      cachedEntry => cachedEntry.id !== entry.id
-                    ),
-                    { ...entry, likes: [...entry.likes, likeEntry] },
-                  ]
-                : "No Data",
-            },
-          });
-        },
       });
-      console.warn({ result });
+      console.warn({ entryResult });
     } catch (err) {
       console.warn({ err });
     }
@@ -116,7 +208,6 @@ const EntryPreview: React.FC<EntryProps> = ({
   const handleUnlike = (likeId: number) => {
     unlikeEntryMutation({ variables: { id: likeId } });
   };
-
   const handleWcToggle = () => {
     setDisplayWeightCorrected(!displayWeightCorrected);
   };
@@ -128,7 +219,7 @@ const EntryPreview: React.FC<EntryProps> = ({
   };
   return (
     <div
-      key={entryId}
+      key={entry.id}
       className={`${
         mine ? "bg-green-200" : ""
       } px-2 border-b last:border-b-0 border-gray-700
@@ -143,6 +234,20 @@ const EntryPreview: React.FC<EntryProps> = ({
               }}
             />
           </button>
+          {mine ? (
+            <button
+              className="items-center flex"
+              onClick={handleCreateChallenge}
+            >
+              {entry.invitations ? entry.invitations.length : null}
+              <GiTrophy />
+            </button>
+          ) : (
+            <button className="items-center flex">
+              {entry.invitations ? entry.invitations.length : null}
+              <GiTrophy />
+            </button>
+          )}
           {mine && displayDetails ? (
             <button
               onClick={handleFormToggle}

@@ -1,29 +1,43 @@
 import React, { useState } from "react";
-import { Challenge } from "../types";
+import { Challenge, User } from "../types";
 import { InviteStatus, ResultTypes } from "../enums";
-import { formatTimeMS, UPDATE_INVITATION } from "../util";
+import {
+  formatTimeMS,
+  CREATE_INVITATION,
+  UPDATE_INVITATION,
+  LIST_CHALLENGES,
+} from "../util";
 import CreateEntry from "./CreateEntry";
 import { useMutation } from "@apollo/react-hooks";
 
 type ChallengeTileProps = {
   key?: string;
   challenge: Challenge;
-  currentUserId: number;
+  currentUser: User;
 };
 const ChallengeTile: React.FC<ChallengeTileProps> = ({
   challenge,
-  currentUserId,
+  currentUser,
 }) => {
-  const [displaySubmitEntryForm, setDisplaySubmitEntryForm] = useState(false);
-  const toggleDisplaySubmitEntryForm = () => {
-    setDisplaySubmitEntryForm(!displaySubmitEntryForm);
-  };
+  const currentUserId = currentUser.id;
+  const iModerate = challenge.moderator.id === currentUserId;
   const myInvitation = challenge.invitations.filter(
     invitation => invitation.invitee.id === currentUserId
   )[0];
   const otherInvitations = challenge.invitations.filter(
     inv => inv.invitee.id !== currentUserId
   );
+  const [displaySubmitEntryForm, setDisplaySubmitEntryForm] = useState(false);
+  const toggleDisplaySubmitEntryForm = () => {
+    setDisplaySubmitEntryForm(!displaySubmitEntryForm);
+  };
+  const [displayChallengeInviteForm, setDisplayChallengeInviteForm] = useState(
+    !Boolean(otherInvitations.length) && iModerate
+  );
+  const toggleDisplayChallengeInviteForm = () => {
+    setDisplayChallengeInviteForm(!displayChallengeInviteForm);
+  };
+
   const getChallengeHeadline = () => {
     const resultType = ResultTypes[
       challenge.objective.resultType
@@ -38,7 +52,7 @@ const ChallengeTile: React.FC<ChallengeTileProps> = ({
         return "";
     }
   };
-  const iModerate = challenge.moderator.id === currentUserId;
+
   const statusColor = iModerate
     ? "yellow"
     : myInvitation.status === InviteStatus.ACCEPTED
@@ -46,6 +60,46 @@ const ChallengeTile: React.FC<ChallengeTileProps> = ({
     : myInvitation.status === InviteStatus.DECLINED
     ? "red"
     : "gray";
+
+  const [createInvitationMutation] = useMutation(CREATE_INVITATION, {
+    update(cache, { data: createInvitation }) {
+      const cachedData: {
+        listChallenges: Challenge[];
+      } | null = cache.readQuery({
+        query: LIST_CHALLENGES,
+      });
+      // console.warn({ cachedData }, { createEntry });
+      if (cachedData) {
+        cache.writeQuery({
+          query: LIST_CHALLENGES,
+          data: {
+            listChallenges: [
+              ...cachedData.listChallenges.filter(ch => ch.id !== challenge.id),
+              {
+                ...challenge,
+                invitations: [...challenge.invitations, createInvitation],
+              },
+            ],
+          },
+        });
+      }
+    },
+  });
+  const createInvitation = async (inviteeId: number) => {
+    try {
+      const result = await createInvitationMutation({
+        variables: {
+          status: InviteStatus.PENDING,
+          inviteeId,
+          challengeId: challenge.id,
+        },
+      });
+      toggleDisplayChallengeInviteForm();
+      console.warn({ challengeInviteResult: { result } });
+    } catch (err) {
+      console.warn({ challengeInviteError: { err } });
+    }
+  };
   const [updateInvitationMutation] = useMutation(UPDATE_INVITATION);
   const updateInvitation = async (responseId: number) => {
     try {
@@ -71,27 +125,11 @@ const ChallengeTile: React.FC<ChallengeTileProps> = ({
       <div>
         <div>
           <div className="font-bold text-lg">{getChallengeHeadline()}</div>
-          {iModerate ? (
-            <div className="font-semibold text-sm">
-              <div>You challenged</div>
-              {otherInvitations.map(inv => (
-                <div key={`${challenge.id}${inv.id}`}>
-                  {inv.invitee.firstName +
-                    " (" +
-                    InviteStatus[inv.status].toLowerCase() +
-                    ")"}
-                </div>
-              ))}
+          {myInvitation.response ? (
+            <div>
+              {iModerate ? "You challenged with " : "You responded with "}
+              {formatTimeMS(myInvitation.response.time)}
             </div>
-          ) : (
-            <div className="font-semibold text-sm">
-              {challenge.moderator.firstName + " challenged you"}
-            </div>
-          )}
-          {!iModerate ? (
-            <button className={`bg-${statusColor}-500 rounded py-1 px-2`}>
-              {String(InviteStatus[myInvitation.status]).toLowerCase()}
-            </button>
           ) : (
             <button
               onClick={toggleDisplaySubmitEntryForm}
@@ -101,11 +139,48 @@ const ChallengeTile: React.FC<ChallengeTileProps> = ({
             </button>
           )}
         </div>
+        {iModerate ? (
+          <div className="font-semibold text-sm">
+            {otherInvitations.length ? (
+              <div>
+                {otherInvitations.map(inv => (
+                  <div key={`${challenge.id}${inv.id}`}>
+                    {inv.invitee.firstName +
+                      " (" +
+                      InviteStatus[inv.status].toLowerCase() +
+                      ") "}
+                    {inv.status === InviteStatus.ACCEPTED
+                      ? formatTimeMS(inv.response.time)
+                      : null}
+                  </div>
+                ))}
+              </div>
+            ) : displayChallengeInviteForm ? (
+              <div>
+                {currentUser.follows.map(userFollow => (
+                  <button
+                    className="bg-blue-500 rounded py-1 px-2 m-1"
+                    onClick={() => createInvitation(userFollow.id)}
+                  >
+                    Challenge {userFollow.firstName} {userFollow.lastName}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        ) : (
+          <div className="font-semibold text-sm">
+            {challenge.moderator.firstName +
+              " challenged you with " +
+              formatTimeMS(otherInvitations[0].response.time)}
+          </div>
+        )}
         {displaySubmitEntryForm ? (
           <div>
             <CreateEntry
+              invitation={myInvitation}
               updateInvitation={updateInvitation}
-              currentUser={myInvitation.invitee}
+              currentUserId={currentUserId}
               toggleDisplayCreateEntryForm={toggleDisplaySubmitEntryForm}
             />
           </div>

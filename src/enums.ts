@@ -26,3 +26,8 @@ export enum InviteStatus {
   ACCEPTED,
   DECLINED,
 }
+export enum DashboardDisplayOptions {
+  EntryFeed,
+  Challenges,
+  PersonalProfile,
+}

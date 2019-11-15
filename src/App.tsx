@@ -117,7 +117,7 @@ const App: React.FC = () => {
                 setDisplay={setDisplayUpdateUserForm}
               />
             ) : (
-              <Dashboard currentUserId={currentUser.id} />
+              <Dashboard currentUser={currentUser} />
             )
           ) : (
             <Login selectUser={handleSignIn} />
