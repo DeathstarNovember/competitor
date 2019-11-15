@@ -1,3 +1,11 @@
+import {
+  Visibility,
+  ObjectiveTypes,
+  InviteStatus,
+  ChallengeStatus,
+  ResultTypes,
+} from "./enums";
+
 export type Follow = {
   id: number;
   followerId: number;
@@ -21,17 +29,15 @@ export type User = {
   biology: string;
   followers: UserFollow[];
   follows: UserFollow[];
+  invitations?: ChallengeInvite[];
+  challenges?: Challenge[];
 };
+
 export type Like = {
   id: number;
   userId: number;
   entryId: number;
 };
-
-export enum Visibility {
-  PUBLIC,
-  PRIVATE,
-}
 export type Comment = {
   id: number;
   user: { id: number; firstName: string };
@@ -57,37 +63,27 @@ export type Entry = {
   avgHr?: number;
 };
 
-// type Result = {
-//   rank: number;
-//   competitorId: number;
-//   entries: ContestEntry[];
-// };
-
-export enum Metrics {
-  Distance, // m
-  Time, // s
-}
-
-type Contest = {
-  name: string;
-  metric: Metrics;
-  objective: number;
-  description?: string;
+export type ChallengeObjective = {
+  id: number;
+  objectiveType: ObjectiveTypes;
+  resultType: ResultTypes;
+  value: number;
 };
 
-// enum IntervalTypes {
-//   Seconds,
-//   Minutes,
-//   Hours,
-//   Days,
-//   Weeks,
-//   Months,
-//   Years,
-// }
-
-// export type Comp = {
-//   name: string;
-//   active: Boolean;
-//   contests: Contest[];
-//   competitors: Competitor[];
-// };
+export type ChallengeInvite = {
+  id: number;
+  invitee: User;
+  status: InviteStatus;
+};
+export type Challenge = {
+  id: number;
+  moderator: User;
+  invitations: ChallengeInvite[];
+  status: ChallengeStatus;
+  objective: ChallengeObjective;
+  startDate: string;
+  duration: number;
+  name?: string;
+  endDate?: string;
+  description?: string;
+};

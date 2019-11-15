@@ -8,11 +8,13 @@ import { ExecutionResult } from "graphql";
 
 type Props = {
   currentUser: User;
+  updateInvitation?: (arg0: number) => void;
   toggleDisplayCreateEntryForm: () => void;
 };
 
 const CreateEntry: React.FC<Props> = ({
   currentUser,
+  updateInvitation,
   toggleDisplayCreateEntryForm,
 }) => {
   const [createEntryMutation] = useMutation(CREATE_ENTRY, {
@@ -20,6 +22,9 @@ const CreateEntry: React.FC<Props> = ({
       const cachedData: { listEntries: Entry[] } | null = cache.readQuery({
         query: LIST_ENTRIES,
       });
+      if (updateInvitation) {
+        updateInvitation(createEntry.id);
+      }
       // console.warn({ cachedData }, { createEntry });
       cache.writeQuery({
         query: LIST_ENTRIES,
@@ -78,9 +83,7 @@ const CreateEntry: React.FC<Props> = ({
       // console.warn({ payload });
 
       try {
-        const result: ExecutionResult<{
-          createEntry: Entry;
-        }> = await createEntryMutation({
+        const result: ExecutionResult<any> = await createEntryMutation({
           variables: payload,
         });
         console.warn({ result });

@@ -29,17 +29,9 @@ const EntryPreview: React.FC<EntryProps> = ({
   currentUser,
 }) => {
   const currentUserId = currentUser.id;
-  const likerIds = entry.likes
-    .map(like => like.userId)
-    .filter((v, i, a) => a.indexOf(v) === i);
-  const iLike = currentUser ? likerIds.includes(currentUserId) : false;
-  const myLike: Like | undefined = iLike
-    ? entry.likes.find(like => like.userId === currentUserId) || {
-        id: 0,
-        userId: currentUserId,
-        entryId: entry.id,
-      }
-    : { id: 0, userId: currentUserId, entryId: entry.id };
+  const myLike: Like | undefined = entry.likes.find(
+    like => like.userId === currentUserId
+  );
   const entryMetrics: EntryCalculations = entryCalculations(entry);
   const [deleteEntryMutation] = useMutation(DELETE_ENTRY, {
     update(cache) {
@@ -164,9 +156,9 @@ const EntryPreview: React.FC<EntryProps> = ({
           <button>
             <div className="flex">
               <MdThumbUp
-                onClick={iLike ? () => handleUnlike(myLike.id) : handleLike}
+                onClick={myLike ? () => handleUnlike(myLike.id) : handleLike}
                 style={{
-                  color: iLike ? "blue" : "black",
+                  color: myLike ? "blue" : "black",
                 }}
               />
               <div className="text-sm mr-1">{`${entry.likes.length}`}</div>

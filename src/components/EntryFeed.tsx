@@ -1,59 +1,76 @@
 import React, { useState } from "react";
 import { User, Entry } from "../types";
 import GroupedEntryFeed from "./GroupedEntryFeed";
-import {
-  MdPlaylistAdd,
-  MdPeople,
-  MdPerson,
-  MdStar,
-  MdPublic,
-} from "react-icons/md";
+import { MdPlaylistAdd, MdPerson, MdStar, MdPublic } from "react-icons/md";
 import StatSummary from "./StatSummary";
 import CreateEntry from "./CreateEntry";
 import { useQuery } from "@apollo/react-hooks";
-import { LIST_USERS } from "../util";
+import { LIST_USERS, LIST_ENTRIES } from "../util";
 
 type EntryFeedProps = {
   currentUserId?: number;
-  entryList: Entry[];
-  toggleCreateEntryForm: () => void;
-  displayCreateEntryForm: boolean;
 };
 
-const EntryFeed: React.FC<EntryFeedProps> = ({
-  currentUserId,
-  entryList,
-  toggleCreateEntryForm,
-  displayCreateEntryForm,
-}) => {
+const EntryFeed: React.FC<EntryFeedProps> = ({ currentUserId }) => {
   enum DisplayOptions {
     Public,
     Following,
     Personal,
   }
   const [displayOption, setDisplayOption] = useState(DisplayOptions.Public);
-  const { data, loading, error } = useQuery(LIST_USERS);
-  if (loading) {
+  const [displayCreateEntryForm, setDisplayCreateEntryForm] = useState(false);
+  const {
+    loading: entriesLoading,
+    error: entriesError,
+    data: entriesData,
+  } = useQuery(LIST_ENTRIES, {
+    pollInterval: 30 * 1000,
+  });
+  const {
+    data: usersData,
+    loading: usersLoading,
+    error: usersError,
+  } = useQuery(LIST_USERS);
+  const toggleCreateEntryForm = () => {
+    setDisplayCreateEntryForm(!displayCreateEntryForm);
+  };
+  if (entriesLoading) {
     return (
       <div className="max-w-md mx-auto p-6">
-        <div className="p-6 rounded-lg shadow-xl">Loading....</div>
+        <div className="p-6 rounded-lg shadow-xl">Entries Loading....</div>
       </div>
     );
   }
-  if (error) {
+  if (entriesError) {
     return (
       <div className="p-6 bg-red-200  rounded-lg shadow-xl text-red-900">
-        Error: {JSON.stringify(error)}
+        Error: {JSON.stringify(entriesError)}
       </div>
     );
   }
-  const currentUser: User = data.listUsers.find(
+  if (usersLoading) {
+    return (
+      <div className="max-w-md mx-auto p-6">
+        <div className="p-6 rounded-lg shadow-xl">Users Loading....</div>
+      </div>
+    );
+  }
+  if (usersError) {
+    return (
+      <div className="p-6 bg-red-200  rounded-lg shadow-xl text-red-900">
+        Error: {JSON.stringify(usersError)}
+      </div>
+    );
+  }
+  const entries: Entry[] = [...entriesData.listEntries];
+  //sort by lastName, then firstName, then completedAt
+  const allEntries: Entry[] = entries.sort((a: Entry, b: Entry) =>
+    a.completedAt < b.completedAt ? 1 : -1
+  );
+  const currentUser: User = usersData.listUsers.find(
     (user: User) => user.id === currentUserId
   );
   //sort by lastName, then firstName, then completedAt
-  const allEntries: Entry[] = entryList.sort((a: Entry, b: Entry) =>
-    a.completedAt < b.completedAt ? 1 : -1
-  );
   const myEntries: Entry[] = allEntries.filter(
     (e: Entry) => e.user.id === currentUser.id
   );

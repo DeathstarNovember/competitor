@@ -22,10 +22,15 @@ export {
 export {
   LIST_USERS,
   GET_USER,
+  LIST_ENTRIES,
+  GET_USER_FOLLOWS,
+  GET_USER_FOLLOWERS,
+  LIST_CHALLENGES,
+} from "./queries";
+export {
   CREATE_USER,
   UPDATE_USER,
   DELETE_USER,
-  LIST_ENTRIES,
   CREATE_ENTRY,
   UPDATE_ENTRY,
   LIKE_ENTRY,
@@ -34,10 +39,10 @@ export {
   CREATE_COMMENT,
   UPDATE_COMMENT,
   DELETE_COMMENT,
+  CREATE_INVITATION,
+  UPDATE_INVITATION,
   CREATE_FOLLOW_LINK,
   DELETE_FOLLOW_LINK,
   DELETE_FOLLOW_LINK_W_USER_IDS,
-  GET_USER_FOLLOWS,
-  GET_USER_FOLLOWERS,
-} from "./queries";
+} from "./mutations";
 export { sortAscByNumberProp, sortDescByNumberProp } from "./arrayUtils";

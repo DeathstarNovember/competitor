@@ -1,48 +1,61 @@
 import React, { useState } from "react";
-import { Entry, User } from "../types";
 import EntryFeed from "./EntryFeed";
-import { useQuery } from "@apollo/react-hooks";
-import { LIST_ENTRIES } from "../util";
+import ChallengeList from "./ChallengeList";
+import { MdList } from "react-icons/md";
+import { GiTrophy } from "react-icons/gi";
+
 type Props = {
   currentUserId: number;
 };
 const Dashboard: React.FC<Props> = ({ currentUserId }) => {
-  const { loading, error, data } = useQuery(LIST_ENTRIES, {
-    pollInterval: 30 * 1000,
-  });
-  const [displayCreateEntryForm, setDisplayCreateEntryForm] = useState(false);
-  const toggleCreateEntryForm = () => {
-    setDisplayCreateEntryForm(!displayCreateEntryForm);
+  enum DisplayOptions {
+    EntryFeed,
+    Challenges,
+    PersonalProfile,
+  }
+  const [displayOption, setDisplayOption] = useState(DisplayOptions.Challenges);
+  const changeDisplayOption = (option: DisplayOptions) => {
+    setDisplayOption(option);
   };
-  if (loading) {
-    return (
-      <div className="max-w-md mx-auto p-6">
-        <div className="p-6 rounded-lg shadow-xl">Loading....</div>
-      </div>
-    );
-  }
-  if (error) {
-    return (
-      <div className="p-6 bg-red-200  rounded-lg shadow-xl text-red-900">
-        Error: {JSON.stringify(error)}
-      </div>
-    );
-  }
-  const entries: Entry[] = [...data.listEntries];
-  //sort by lastName, then firstName, then completedAt
-  const allEntries: Entry[] = entries.sort((a: Entry, b: Entry) =>
-    a.completedAt < b.completedAt ? 1 : -1
-  );
-
   return (
     <div className={"max-w-md mx-auto p-6"}>
-      {allEntries.length ? (
-        <EntryFeed
-          currentUserId={currentUserId}
-          entryList={allEntries}
-          toggleCreateEntryForm={toggleCreateEntryForm}
-          displayCreateEntryForm={displayCreateEntryForm}
-        />
+      {displayOption === DisplayOptions.EntryFeed ? (
+        <button
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mb-4 ml-2 rounded focus:outline-none focus:shadow-outline"
+          type="button"
+        >
+          <MdList />
+        </button>
+      ) : (
+        <button
+          className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 mb-4 ml-2 rounded focus:outline-none focus:shadow-outline"
+          type="button"
+          onClick={() => changeDisplayOption(DisplayOptions.EntryFeed)}
+        >
+          <MdList />
+        </button>
+      )}
+      {displayOption === DisplayOptions.Challenges ? (
+        <button
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mb-4 ml-2 rounded focus:outline-none focus:shadow-outline"
+          type="button"
+        >
+          <GiTrophy />
+        </button>
+      ) : (
+        <button
+          className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 mb-4 ml-2 rounded focus:outline-none focus:shadow-outline"
+          type="button"
+          onClick={() => changeDisplayOption(DisplayOptions.Challenges)}
+        >
+          <GiTrophy />
+        </button>
+      )}
+      {displayOption === DisplayOptions.EntryFeed ? (
+        <EntryFeed currentUserId={currentUserId} />
+      ) : null}
+      {displayOption === DisplayOptions.Challenges ? (
+        <ChallengeList currentUserId={currentUserId} />
       ) : null}
     </div>
   );

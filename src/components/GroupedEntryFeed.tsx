@@ -6,7 +6,6 @@ import { useMutation } from "@apollo/react-hooks";
 import {
   LIST_USERS,
   CREATE_FOLLOW_LINK,
-  DELETE_FOLLOW_LINK,
   DELETE_FOLLOW_LINK_W_USER_IDS,
 } from "../util";
 
@@ -46,7 +45,6 @@ type UserEntryGroupProps = {
 const UserEntryGroup: React.FC<UserEntryGroupProps> = ({
   currentUser,
   entryGroup,
-  userKey,
 }) => {
   const entryGroupUser: User = entryGroup[0].user;
   const userLabel = `${entryGroupUser.firstName} ${entryGroupUser.lastName}`;

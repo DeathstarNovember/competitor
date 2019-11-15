@@ -3,8 +3,31 @@ import { Entry } from "../types";
 import { entryGroupCalculations, getEntryPace } from "../util";
 import { format, parseISO } from "date-fns";
 import { MdSwapVert } from "react-icons/md";
+import { FaQuestion } from "react-icons/fa";
+import {
+  GiPaperBoat,
+  GiFishingBoat,
+  GiSailboat,
+  GiSpeedBoat,
+} from "react-icons/gi";
 type StatSummaryProps = {
   entries: Entry[];
+};
+type LevelBadgeProps = {
+  totalDistance: number;
+};
+const LevelBadge: React.FC<LevelBadgeProps> = ({ totalDistance }) => {
+  if (totalDistance < 100000) {
+    return <GiPaperBoat />;
+  } else if (totalDistance < 500000) {
+    return <GiFishingBoat />;
+  } else if (totalDistance < 750000) {
+    return <GiSailboat />;
+  } else if (totalDistance >= 1000000) {
+    return <GiSpeedBoat />;
+  } else {
+    return <FaQuestion />;
+  }
 };
 const StatSummary: React.FC<StatSummaryProps> = ({ entries }) => {
   const statSummary = entryGroupCalculations(entries);
@@ -43,7 +66,12 @@ const StatSummary: React.FC<StatSummaryProps> = ({ entries }) => {
       <div className="p-2">
         <div className="flex flex-col mb-3">
           <div className="flex flex-1 justify-between">
-            <div className="">Total Dist</div>
+            <div className="flex">
+              <div>Total Dist</div>
+              <div className="bg-blue-400 p-1 rounded ml-2">
+                <LevelBadge totalDistance={statSummary.totalDistance} />
+              </div>
+            </div>
             <div className="">{`${statSummary.totalDistance}m`}</div>
           </div>
           {displayFullSummary ? (
@@ -56,23 +84,25 @@ const StatSummary: React.FC<StatSummaryProps> = ({ entries }) => {
               </div>
               <div className="flex flex-1 justify-between">
                 <div className="">Avg Spd</div>
-                <div className="">{`${statSummary.avgPace}m/s`}</div>
+                <div className="">{`${statSummary.avgPace.toFixed(3)}m/s`}</div>
               </div>
               <div className="flex flex-1 justify-between">
                 <div className="">Fastest Spd</div>
                 <div className="">{`${getEntryPace(
                   statSummary.fastestEntry
-                )}m/s`}</div>
+                ).toFixed(3)}m/s`}</div>
               </div>
               <div className="flex flex-1 justify-between">
                 <div className="">Avg Pwr</div>
-                <div className="">{`${statSummary.avgPowerOutput}W`}</div>
+                <div className="">{`${statSummary.avgPowerOutput.toFixed(
+                  3
+                )}W`}</div>
               </div>
               <div className="flex flex-1 justify-between">
                 <div className="">Total Pwr</div>
-                <div className="">{`${(
-                  statSummary.totalPowerProduced / 1000
-                ).toFixed(2)}kJ`}</div>
+                <div className="">{`${statSummary.totalPowerProduced.toFixed(
+                  0
+                )}J`}</div>
               </div>
             </>
           ) : null}
