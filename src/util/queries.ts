@@ -11,6 +11,7 @@ import {
 export const LIST_ENTRIES = gql`
   {
     listEntries {
+      id
       ...Entry
     }
   }
@@ -20,6 +21,7 @@ export const LIST_ENTRIES = gql`
 export const LIST_CHALLENGES = gql`
   {
     listChallenges {
+      id
       ...Challenge
     }
   }
@@ -29,6 +31,7 @@ export const LIST_CHALLENGES = gql`
 export const GET_CHALLENGE = gql`
   query getChallenge($id: ID!) {
     getChallenge(id: $id) {
+      id
       ...Challenge
     }
   }
@@ -37,6 +40,7 @@ export const GET_CHALLENGE = gql`
 export const GET_INVITATION = gql`
   query getInvitation($id: ID!) {
     getInvitation(id: $id) {
+      id
       ...Invitation
     }
   }

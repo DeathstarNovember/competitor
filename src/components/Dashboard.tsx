@@ -5,6 +5,8 @@ import { MdList } from "react-icons/md";
 import { GiTrophy } from "react-icons/gi";
 import { User } from "../types";
 import { DashboardDisplayOptions } from "../enums";
+import { LIST_CHALLENGES } from "../util";
+import { useQuery } from "@apollo/react-hooks";
 
 type Props = {
   currentUser: User;
@@ -16,6 +18,25 @@ const Dashboard: React.FC<Props> = ({ currentUser }) => {
   const changeDashboardDisplayOption = (option: DashboardDisplayOptions) => {
     setDashboardDisplayOption(option);
   };
+  const {
+    data: challengesData,
+    loading: challengesLoading,
+    error: challengesError,
+  } = useQuery(LIST_CHALLENGES);
+  if (challengesLoading) {
+    return (
+      <div className="max-w-md mx-auto p-6">
+        <div className="p-6 rounded-lg shadow-xl">Challenges Loading....</div>
+      </div>
+    );
+  }
+  if (challengesError) {
+    return (
+      <div className="p-6 bg-red-200  rounded-lg shadow-xl text-red-900">
+        Error: {JSON.stringify(challengesError)}
+      </div>
+    );
+  }
   return (
     <div className={"max-w-md mx-auto p-6"}>
       {dashboardDisplayOption === DashboardDisplayOptions.EntryFeed ? (
@@ -61,7 +82,10 @@ const Dashboard: React.FC<Props> = ({ currentUser }) => {
         />
       ) : null}
       {dashboardDisplayOption === DashboardDisplayOptions.Challenges ? (
-        <ChallengeList currentUser={currentUser} />
+        <ChallengeList
+          currentUser={currentUser}
+          challengesData={challengesData}
+        />
       ) : null}
     </div>
   );

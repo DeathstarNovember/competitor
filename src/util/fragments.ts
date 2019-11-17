@@ -5,13 +5,12 @@ export const UserFollowsFrag = gql`
     follows {
       id
       firstName
-      LastName
+      lastName
     }
   }
 `;
 export const FollowLinkFrag = gql`
   fragment FollowLink on FollowLink {
-    id
     follower {
       id
       firstName
@@ -20,7 +19,7 @@ export const FollowLinkFrag = gql`
     followed {
       id
       firstName
-      LastName
+      lastName
     }
   }
 `;
@@ -29,7 +28,7 @@ export const UserFollowersFrag = gql`
     followers {
       id
       firstName
-      LastName
+      lastName
     }
   }
 `;
@@ -52,7 +51,9 @@ export const CommentUserFrag = gql`
   fragment CommentUser on Comment {
     user {
       id
-      ...UserNames
+      firstName
+      lastName
+      username
     }
   }
 `;
@@ -73,7 +74,6 @@ export const CommentDetailsFrag = gql`
 `;
 export const CommentFrag = gql`
   fragment Comment on Comment {
-    id
     ...CommentDetails
     ...CommentUser
     ...CommentEntry
@@ -153,60 +153,53 @@ export const InvitationResponseFrag = gql`
       avgHr
     }
   }
-  ${EntryDetailsFrag}
+`;
+export const InvitationChallengeFrag = gql`
+  fragment InvitationChallenge on Invitation {
+    challenge {
+      id
+      name
+      description
+      status
+      startDate
+      endDate
+      duration
+    }
+  }
 `;
 export const InvitationFrag = gql`
   fragment Invitation on Invitation {
-    id
     status
-    challenge {
-      id
-    }
+    ...InvitationChallenge
     ...InvitationInvitee
     ...InvitationResponse
   }
   ${InvitationIviteeFrag}
   ${InvitationResponseFrag}
+  ${InvitationChallengeFrag}
 `;
 export const EntryFrag = gql`
   fragment Entry on Entry {
-    id
     ...EntryDetails
     ...EntryUser
     ...EntryComments
     ...EntryLikes
     invitations {
-      ...Invitation
+      id
+      status
+      invitee {
+        id
+      }
     }
   }
-  ${InvitationFrag}
   ${EntryDetailsFrag}
   ${EntryUserFrag}
   ${EntryCommentsFrag}
   ${EntryLikesFrag}
 `;
 
-export const ObjectiveDetailsFrag = gql`
-  fragment ObjectiveDetails on Objective {
-    id
-    objectiveType
-    resultType
-    value
-    challenge {
-      id
-    }
-  }
-`;
-export const ObjectiveFrag = gql`
-  fragment Objective on Objective {
-    id
-    ...ObjectiveDetails
-  }
-  ${ObjectiveDetailsFrag}
-`;
 export const ChallengeInfoFrag = gql`
   fragment ChallengeInfo on Challenge {
-    id
     name
     description
     status
@@ -228,22 +221,64 @@ export const ChallengeModeratorFrag = gql`
       firstName
       lastName
       username
+      follows {
+        id
+        firstName
+        lastName
+      }
     }
   }
+`;
+export const ObjectiveDetailsFrag = gql`
+  fragment ObjectiveDetails on Objective {
+    objectiveType
+    resultType
+    value
+  }
+`;
+export const ObjectiveChallengeFrag = gql`
+  fragment ObjectiveChallenge on Objective {
+    challenge {
+      id
+      name
+      description
+      status
+      startDate
+      endDate
+      duration
+      invitations {
+        id
+      }
+    }
+  }
+`;
+export const ObjectiveFrag = gql`
+  fragment Objective on Objective {
+    ...ObjectiveDetails
+    ...ObjectiveChallenge
+  }
+  ${ObjectiveDetailsFrag}
+  ${ObjectiveChallengeFrag}
 `;
 export const ChallengeObjectiveFrag = gql`
   fragment ChallengeObjective on Challenge {
     objective {
+      id
       ...ObjectiveDetails
+      ...ObjectiveChallenge
     }
   }
   ${ObjectiveDetailsFrag}
+  ${ObjectiveChallengeFrag}
 `;
 export const ChallengeInvitationsFrag = gql`
   fragment ChallengeInvitations on Challenge {
     invitations {
       id
       status
+      challenge {
+        id
+      }
       ...InvitationResponse
       invitee {
         id

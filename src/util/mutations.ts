@@ -37,6 +37,7 @@ export const CREATE_CHALLENGE = gql`
       moderatorId: $moderatorId
       status: $status
     ) {
+      id
       ...Challenge
     }
   }
@@ -58,6 +59,7 @@ export const UPDATE_OBJECTIVE = gql`
       value: $value
       challengeId: $challengeId
     ) {
+      id
       ...Objective
     }
   }
@@ -77,6 +79,7 @@ export const CREATE_COMMENT = gql`
       body: $body
       visibility: $visibility
     ) {
+      id
       ...Comment
     }
   }
@@ -86,6 +89,7 @@ export const CREATE_COMMENT = gql`
 export const CREATE_FOLLOW_LINK = gql`
   mutation CreateFollowLink($followerId: ID!, $followedId: ID!) {
     createFollowLink(followerId: $followerId, followedId: $followedId) {
+      id
       ...FollowLink
     }
   }
@@ -95,6 +99,7 @@ export const CREATE_FOLLOW_LINK = gql`
 export const UPDATE_COMMENT = gql`
   mutation UpdateComment($id: ID!, $body: String!, $visibility: Int!) {
     updateComment(id: $id, body: $body, visibility: $visibility) {
+      id
       ...Comment
     }
   }
@@ -124,6 +129,7 @@ export const CREATE_ENTRY = gql`
       maxHr: $maxHr
       avgHr: $avgHr
     ) {
+      id
       ...Entry
     }
   }
@@ -137,6 +143,7 @@ export const CREATE_INVITATION = gql`
       challengeId: $challengeId
       status: $status
     ) {
+      id
       ...Invitation
     }
   }
@@ -158,6 +165,7 @@ export const UPDATE_INVITATION = gql`
       status: $status
       responseId: $responseId
     ) {
+      id
       ...Invitation
     }
   }
@@ -251,6 +259,7 @@ export const UPDATE_ENTRY = gql`
       maxHr: $maxHr
       avgHr: $avgHr
     ) {
+      id
       ...Entry
     }
   }

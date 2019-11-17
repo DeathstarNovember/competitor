@@ -9,7 +9,7 @@ import { ExecutionResult } from "graphql";
 type Props = {
   currentUserId: number;
   invitation?: ChallengeInvite;
-  updateInvitation?: (arg0: number) => void;
+  updateInvitation?: (responseId: number) => Promise<void>;
   toggleDisplayCreateEntryForm: () => void;
 };
 
@@ -29,7 +29,10 @@ const CreateEntry: React.FC<Props> = ({
         cache.writeQuery({
           query: LIST_ENTRIES,
           data: {
-            listEntries: [...cachedData.listEntries, createEntry],
+            listEntries: [
+              ...cachedData.listEntries,
+              { ...createEntry, __typename: "Entry" },
+            ],
           },
         });
       }
@@ -104,12 +107,16 @@ const CreateEntry: React.FC<Props> = ({
         variables: payload,
       });
       console.warn({ entryResult: { ...result } });
+
+      // Update the invitation with the newly created entry
+      // (That is a response to a challenge)
+      if (updateInvitation && invitation) {
+        updateInvitation(result.data.createEntry.id);
+      }
+
       toggleDisplayCreateEntryForm();
     } catch (err) {
       console.warn({ entryError: { ...err } });
-    }
-    if (updateInvitation && invitation) {
-      updateInvitation(invitation.id);
     }
   };
 
@@ -178,7 +185,12 @@ const CreateEntry: React.FC<Props> = ({
             <div className="pr-2">
               <input
                 name="avgHr"
-                ref={register({})}
+                ref={register({
+                  pattern: {
+                    value: /^([1-9][0-9]+)?$/i,
+                    message: "ex 160",
+                  },
+                })}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300 "
                 placeholder="Avg HR"
               />
@@ -187,7 +199,12 @@ const CreateEntry: React.FC<Props> = ({
             <div className="">
               <input
                 name="maxHr"
-                ref={register({})}
+                ref={register({
+                  pattern: {
+                    value: /^([1-9][0-9]+)?$/i,
+                    message: "ex 180",
+                  },
+                })}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300 "
                 placeholder="Max HR"
               />

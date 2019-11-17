@@ -53,31 +53,35 @@ const UserEntryGroup: React.FC<UserEntryGroupProps> = ({
   const userLabel = `${entryGroupUser.firstName} ${entryGroupUser.lastName}`;
   const [createFollowMutation] = useMutation(CREATE_FOLLOW_LINK, {
     update(cache, { data: { createFollowLink } }) {
-      const cachedData: { listUsers: User[] } | null = cache.readQuery({
+      const cachedUsers: { listUsers: User[] } | null = cache.readQuery({
         query: LIST_USERS,
       });
-
-      const reuseableCachedUsers = cachedData
-        ? cachedData.listUsers.filter(
-            cachedUser =>
-              cachedUser.id !== currentUser.id ||
-              cachedUser.id !== createFollowLink.follower.id
-          )
-        : [];
-      const updatedUserFollows = {
-        ...currentUser,
-        follows: [
-          ...currentUser.follows,
-          { id: createFollowLink.followed.id, __typename: "User" },
-        ],
-      };
-      const newData = {
-        listUsers: [...reuseableCachedUsers, updatedUserFollows],
-      };
-      cache.writeQuery({
-        query: LIST_USERS,
-        data: newData,
-      });
+      if (cachedUsers) {
+        const reuseableCachedUsers = cachedUsers.listUsers.filter(
+          cachedUser =>
+            cachedUser.id !== currentUser.id ||
+            cachedUser.id !== createFollowLink.follower.id
+        );
+        const updatedUserFollows = {
+          ...currentUser,
+          follows: [
+            ...currentUser.follows,
+            {
+              id: createFollowLink.followed.id,
+              __typename: "User",
+              firstName: createFollowLink.followed.firstName,
+              lastName: createFollowLink.followed.lastName,
+            },
+          ],
+        };
+        const newData = {
+          listUsers: [...reuseableCachedUsers, updatedUserFollows],
+        };
+        cache.writeQuery({
+          query: LIST_USERS,
+          data: newData,
+        });
+      }
     },
   });
   const [deleteFollowMutation] = useMutation(DELETE_FOLLOW_LINK_W_USER_IDS, {

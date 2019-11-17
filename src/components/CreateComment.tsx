@@ -34,7 +34,10 @@ const CreateComment: React.FC<Props> = ({
                 ),
                 {
                   ...entry,
-                  comments: [...entry.comments, createComment],
+                  comments: [
+                    ...entry.comments,
+                    { ...createComment, __typename: "Comment" },
+                  ],
                 },
               ]
             : "No Data",
@@ -55,6 +58,7 @@ const CreateComment: React.FC<Props> = ({
         entryId: entry.id,
         body: values.body,
         visibility: Visibility.PUBLIC,
+        __typename: "Comment",
       };
       // console.warn({ payload });
       try {

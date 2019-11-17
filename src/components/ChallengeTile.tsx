@@ -63,21 +63,29 @@ const ChallengeTile: React.FC<ChallengeTileProps> = ({
 
   const [createInvitationMutation] = useMutation(CREATE_INVITATION, {
     update(cache, { data: createInvitation }) {
-      const cachedData: {
+      const cachedListChallengesData: {
         listChallenges: Challenge[];
       } | null = cache.readQuery({
         query: LIST_CHALLENGES,
       });
-      // console.warn({ cachedData }, { createEntry });
-      if (cachedData) {
+      // console.warn({ cachedListChallengesData }, createInvitation);
+      if (cachedListChallengesData) {
         cache.writeQuery({
           query: LIST_CHALLENGES,
           data: {
             listChallenges: [
-              ...cachedData.listChallenges.filter(ch => ch.id !== challenge.id),
+              ...cachedListChallengesData.listChallenges.filter(
+                ch => ch.id !== challenge.id
+              ),
               {
                 ...challenge,
-                invitations: [...challenge.invitations, createInvitation],
+                invitations: [
+                  ...challenge.invitations,
+                  {
+                    ...createInvitation.createInvitation,
+                    __typename: "Invitation",
+                  },
+                ],
               },
             ],
           },
@@ -110,6 +118,7 @@ const ChallengeTile: React.FC<ChallengeTileProps> = ({
           inviteeId: currentUserId,
           challengeId: challenge.id,
           responseId,
+          __typename: "Invitation",
         },
       });
       toggleDisplaySubmitEntryForm();
@@ -157,8 +166,9 @@ const ChallengeTile: React.FC<ChallengeTileProps> = ({
               </div>
             ) : displayChallengeInviteForm ? (
               <div>
-                {currentUser.follows.map(userFollow => (
+                {challenge.moderator.follows.map(userFollow => (
                   <button
+                    key={`challenge${challenge.id}${userFollow.id}`}
                     className="bg-blue-500 rounded py-1 px-2 m-1"
                     onClick={() => createInvitation(userFollow.id)}
                   >
