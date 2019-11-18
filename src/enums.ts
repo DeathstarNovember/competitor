@@ -29,5 +29,10 @@ export enum InviteStatus {
 export enum DashboardDisplayOptions {
   EntryFeed,
   Challenges,
+  Achievements,
   PersonalProfile,
+}
+export enum AchievementTypes {
+  bestTimeEntryForDistance,
+  bestDistanceEntryForTime,
 }

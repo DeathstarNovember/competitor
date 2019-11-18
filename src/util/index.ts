@@ -26,6 +26,7 @@ export {
   GET_USER_FOLLOWS,
   GET_USER_FOLLOWERS,
   LIST_CHALLENGES,
+  LIST_ACHIEVEMENTS,
 } from "./queries";
 export {
   CREATE_USER,
@@ -44,5 +45,8 @@ export {
   CREATE_FOLLOW_LINK,
   DELETE_FOLLOW_LINK,
   DELETE_FOLLOW_LINK_W_USER_IDS,
+  CREATE_ACHIEVEMENT,
+  CREATE_CHALLENGE,
+  UPDATE_OBJECTIVE,
 } from "./mutations";
 export { sortAscByNumberProp, sortDescByNumberProp } from "./arrayUtils";

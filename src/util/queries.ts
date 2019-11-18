@@ -6,6 +6,8 @@ import {
   ChallengeFrag,
   EntryFrag,
   InvitationFrag,
+  AchievementFrag,
+  UserAchievementsFrag,
 } from "./fragments";
 
 export const LIST_ENTRIES = gql`
@@ -26,6 +28,16 @@ export const LIST_CHALLENGES = gql`
     }
   }
   ${ChallengeFrag}
+`;
+
+export const LIST_ACHIEVEMENTS = gql`
+  {
+    listAchievements {
+      id
+      ...Achievement
+    }
+  }
+  ${AchievementFrag}
 `;
 
 export const GET_CHALLENGE = gql`
@@ -53,10 +65,12 @@ export const GET_USER = gql`
       id
       ...UserProfile
       ...UserFollows
+      ...UserAchievements
     }
   }
   ${UserProfileFrag}
   ${UserFollowsFrag}
+  ${UserAchievementsFrag}
 `;
 
 export const GET_USER_FOLLOWS = gql`
@@ -84,8 +98,10 @@ export const LIST_USERS = gql`
       id
       ...UserProfile
       ...UserFollows
+      ...UserAchievements
     }
   }
   ${UserProfileFrag}
   ${UserFollowsFrag}
+  ${UserAchievementsFrag}
 `;

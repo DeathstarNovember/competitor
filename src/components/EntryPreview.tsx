@@ -252,7 +252,7 @@ const EntryPreview: React.FC<EntryProps> = ({
     <div
       key={entry.id}
       className={`${
-        mine ? "bg-green-200" : ""
+        mine ? (entry.achievement ? "bg-yellow-200" : "bg-green-200") : ""
       } px-2 border-b last:border-b-0 border-gray-700
           hover:bg-gray-200`}
     >

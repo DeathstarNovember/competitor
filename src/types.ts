@@ -4,6 +4,7 @@ import {
   InviteStatus,
   ChallengeStatus,
   ResultTypes,
+  AchievementTypes,
 } from "./enums";
 
 export type Follow = {
@@ -33,6 +34,7 @@ export type User = {
   follows: UserFollow[];
   invitations?: ChallengeInvite[];
   challenges?: Challenge[];
+  achievements: Achievement[];
 };
 
 export type Like = {
@@ -64,6 +66,7 @@ export type Entry = {
   maxHr?: number;
   avgHr?: number;
   invitations?: ChallengeInvite[];
+  achievement?: Achievement;
 };
 
 export type ChallengeObjective = {
@@ -92,4 +95,11 @@ export type Challenge = {
   name?: string;
   endDate?: string;
   description?: string;
+};
+
+export type Achievement = {
+  id: number;
+  user: User;
+  entry: Entry;
+  achievementType: AchievementTypes;
 };

@@ -23,6 +23,42 @@ export const FollowLinkFrag = gql`
     }
   }
 `;
+export const AchievementFrag = gql`
+  fragment Achievement on Achievement {
+    user {
+      id
+      firstName
+      lastName
+    }
+    entry {
+      id
+      userWeight
+      userHeight
+      distance
+      time
+      strokeRate
+      completedAt
+      maxHr
+      avgHr
+      likes {
+        id
+        userId
+      }
+      comments {
+        body
+        insertedAt
+        updatedAt
+        visibility
+        user {
+          id
+        }
+      }
+    }
+    achievementType
+    insertedAt
+    updatedAt
+  }
+`;
 export const UserFollowersFrag = gql`
   fragment UserFollowers on User {
     followers {
@@ -102,6 +138,56 @@ export const UserProfileFrag = gql`
     ...UserNames
   }
   ${UserNamesFrag}
+`;
+export const UserAchievementsFrag = gql`
+  fragment UserAchievements on User {
+    achievements {
+      id
+      user {
+        id
+        firstName
+        LastName
+      }
+      entry {
+        id
+        userWeight
+        userHeight
+        distance
+        time
+        strokeRate
+        completedAt
+        maxHr
+        avgHr
+      }
+      achievementType
+      insertedAt
+      updatedAt
+    }
+  }
+`;
+export const EntryAchievementFrag = gql`
+  fragment EntryAchievement on Entry {
+    achievement {
+      id
+      user {
+        id
+        firstName
+        LastName
+      }
+      entry {
+        id
+        userWeight
+        userHeight
+        distance
+        time
+        strokeRate
+        completedAt
+        maxHr
+        avgHr
+      }
+      achievementType
+    }
+  }
 `;
 export const EntryDetailsFrag = gql`
   fragment EntryDetails on Entry {
@@ -191,11 +277,13 @@ export const EntryFrag = gql`
         id
       }
     }
+    ...EntryAchievement
   }
   ${EntryDetailsFrag}
   ${EntryUserFrag}
   ${EntryCommentsFrag}
   ${EntryLikesFrag}
+  ${EntryAchievementFrag}
 `;
 
 export const ChallengeInfoFrag = gql`

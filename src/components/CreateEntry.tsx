@@ -1,10 +1,17 @@
 import React from "react";
 import { useMutation, useQuery } from "@apollo/react-hooks";
 import useForm from "react-hook-form";
-import { User, Entry, ChallengeInvite } from "../types";
+import { User, Entry, ChallengeInvite, Achievement } from "../types";
 import { parse, format, set } from "date-fns";
-import { CREATE_ENTRY, LIST_ENTRIES, GET_USER } from "../util";
+import {
+  CREATE_ENTRY,
+  LIST_ENTRIES,
+  GET_USER,
+  CREATE_ACHIEVEMENT,
+  LIST_ACHIEVEMENTS,
+} from "../util";
 import { ExecutionResult } from "graphql";
+import { AchievementTypes } from "../enums";
 
 type Props = {
   currentUserId: number;
@@ -38,6 +45,49 @@ const CreateEntry: React.FC<Props> = ({
       }
     },
   });
+  const [createAchievementMutation] = useMutation(CREATE_ACHIEVEMENT, {
+    update(cache, { data: { createAchievement } }) {
+      const cachedAchievementData: {
+        listAchievements: Achievement[];
+      } | null = cache.readQuery({
+        query: LIST_ACHIEVEMENTS,
+      });
+      const cachedEntriesData: {
+        listEntries: Entry[];
+      } | null = cache.readQuery({ query: LIST_ENTRIES });
+      // console.warn({ cachedAchievementData }, { createAchievement });
+      if (cachedAchievementData && cachedEntriesData) {
+        cache.writeQuery({
+          query: LIST_ACHIEVEMENTS,
+          data: {
+            listAchievements: [
+              ...cachedAchievementData.listAchievements,
+              { ...createAchievement, __typename: "Achievement" },
+            ],
+          },
+        });
+        cache.writeQuery({
+          query: LIST_ENTRIES,
+          data: {
+            listEntries: [
+              ...cachedEntriesData.listEntries.filter(
+                cachedEntry => cachedEntry.id !== createAchievement.entry.id
+              ),
+              {
+                ...cachedEntriesData.listEntries.filter(
+                  cachedEntry => cachedEntry.id === createAchievement.entry.id
+                )[0],
+                achievement: {
+                  ...createAchievement,
+                  __typename: "Achievement",
+                },
+              },
+            ],
+          },
+        });
+      }
+    },
+  });
 
   const { handleSubmit, register, errors } = useForm();
   const {
@@ -60,8 +110,27 @@ const CreateEntry: React.FC<Props> = ({
     );
   }
   const currentUser: User = { ...userData.getUser };
-  // console.warn({ currentUser });
+  const createAchievement = async (
+    entryId: number,
+    achievementType: AchievementTypes
+  ) => {
+    const achievementVariables = {
+      __typename: "Achievement",
+      entryId,
+      userId: currentUserId,
+      achievementType,
+    };
 
+    console.warn({ achievementVariables });
+    try {
+      const achievementResult: ExecutionResult<any> = await createAchievementMutation(
+        { variables: achievementVariables }
+      );
+      console.warn({ achievementResult });
+    } catch (err) {
+      console.warn({ err });
+    }
+  };
   const onSubmit = async (values: any) => {
     // console.warn({ values });
 
@@ -84,9 +153,6 @@ const CreateEntry: React.FC<Props> = ({
 
     const userWeight = currentUser.currentWeight;
     const userHeight = currentUser.currentHeight;
-    // const hrInfo: { maxHr?: number; avgHr?: number } = {};
-    // if (values.maxHr) hrInfo["maxHr"] = values.maxHr;
-    // if (values.avgHr) hrInfo["avgHr"] = values.avgHr;
     const payload = {
       userId: Number(currentUser.id),
       time: Number(time),
@@ -95,7 +161,6 @@ const CreateEntry: React.FC<Props> = ({
       completedAt: format(completedAt, "yyyy-MM-dd HH:mm:ss"),
       userWeight,
       userHeight,
-      // ...hrInfo,
       maxHr: Number(values.maxHr),
       avgHr: Number(values.avgHr),
     };
@@ -106,14 +171,89 @@ const CreateEntry: React.FC<Props> = ({
       const result: ExecutionResult<any> = await createEntryMutation({
         variables: payload,
       });
-      console.warn({ entryResult: { ...result } });
+      const createdEntry = { ...result.data.createEntry };
 
       // Update the invitation with the newly created entry
       // (That is a response to a challenge)
       if (updateInvitation && invitation) {
-        updateInvitation(result.data.createEntry.id);
+        updateInvitation(createdEntry.id);
       }
-
+      if (currentUser.achievements) {
+        if (createdEntry.time % 60 === 0) {
+          console.warn("created Entry Time is a multiple of 60");
+          const userAchievementsDistForTime = currentUser.achievements.filter(
+            achievement =>
+              achievement.achievementType ===
+                AchievementTypes.bestDistanceEntryForTime &&
+              achievement.entry.time === createdEntry.time
+          );
+          if (userAchievementsDistForTime.length) {
+            const bestUserAchievementsDistForTime = userAchievementsDistForTime.sort(
+              (a, b) => a.entry.distance - b.entry.distance
+            )[0];
+            if (
+              bestUserAchievementsDistForTime.entry.distance <
+              createdEntry.distance
+            ) {
+              console.warn("this entry is longer");
+              createAchievement(
+                createdEntry.id,
+                AchievementTypes.bestDistanceEntryForTime
+              );
+            }
+          } else {
+            console.warn("User has no time achievements set");
+            createAchievement(
+              createdEntry.id,
+              AchievementTypes.bestDistanceEntryForTime
+            );
+          }
+        }
+        if (createdEntry.distance % 25 === 0) {
+          console.warn("created Entry Distance is a multiple of 25");
+          const userAchievementsTimeForDist = currentUser.achievements.filter(
+            achievement =>
+              achievement.achievementType ===
+                AchievementTypes.bestTimeEntryForDistance &&
+              achievement.entry.distance === createdEntry.distance
+          );
+          if (userAchievementsTimeForDist.length) {
+            const bestUserAchievementsTimeForDist = userAchievementsTimeForDist.sort(
+              (a, b) => b.entry.time - a.entry.time
+            )[0];
+            console.warn({ bestUserAchievementsTimeForDist });
+            if (
+              bestUserAchievementsTimeForDist.entry.time > createdEntry.time
+            ) {
+              console.warn("This entry is faster");
+              createAchievement(
+                createdEntry.id,
+                AchievementTypes.bestTimeEntryForDistance
+              );
+            }
+          } else {
+            console.warn("no distance records set");
+            createAchievement(
+              createdEntry.id,
+              AchievementTypes.bestTimeEntryForDistance
+            );
+          }
+        }
+      } else {
+        console.warn("user has no achievements");
+        if (createdEntry.time % 60 === 0) {
+          createAchievement(
+            createdEntry.id,
+            AchievementTypes.bestDistanceEntryForTime
+          );
+        }
+        if (createdEntry.distance % 25 === 0) {
+          createAchievement(
+            createdEntry.id,
+            AchievementTypes.bestTimeEntryForDistance
+          );
+        }
+      }
       toggleDisplayCreateEntryForm();
     } catch (err) {
       console.warn({ entryError: { ...err } });

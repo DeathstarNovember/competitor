@@ -7,6 +7,7 @@ import {
   ChallengeFrag,
   EntryFrag,
   FollowLinkFrag,
+  AchievementFrag,
 } from "./fragments";
 export const LIKE_ENTRY = gql`
   mutation LikeEntry($userId: Int!, $entryId: Int!) {
@@ -42,6 +43,24 @@ export const CREATE_CHALLENGE = gql`
     }
   }
   ${ChallengeFrag}
+`;
+
+export const CREATE_ACHIEVEMENT = gql`
+  mutation CreateAchievement(
+    $userId: ID!
+    $entryId: ID!
+    $achievementType: Int!
+  ) {
+    createAchievement(
+      userId: $userId
+      entryId: $entryId
+      achievementType: $achievementType
+    ) {
+      id
+      ...Achievement
+    }
+  }
+  ${AchievementFrag}
 `;
 
 export const UPDATE_OBJECTIVE = gql`
