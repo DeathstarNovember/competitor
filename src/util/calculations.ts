@@ -1,30 +1,21 @@
 import { Entry } from "../types";
 export const getEntryAvgPowerOutput = (entry: Entry) =>
-  Number((2.8 / Math.pow(entry.time / entry.distance, 3)).toFixed(2));
+  2.8 / Math.pow(entry.time / entry.distance, 3);
 
 export const getEntryTotalPowerProduced = (entry: Entry) =>
   getEntryAvgPowerOutput(entry) * entry.time;
 
-export const getEntryPace = (entry: Entry) =>
-  Number((entry.distance / entry.time).toFixed(2));
+export const getEntryPace = (entry: Entry) => entry.distance / entry.time;
 
 export const getEntryGroupAvgPowerOutput = (entryGroup: Entry[]) =>
-  Number(
-    (
-      entryGroup
-        .map(entry => getEntryAvgPowerOutput(entry))
-        .reduce((acc, curr) => acc + curr) / entryGroup.length
-    ).toFixed(2)
-  );
+  entryGroup
+    .map(entry => getEntryAvgPowerOutput(entry))
+    .reduce((acc, curr) => acc + curr) / entryGroup.length;
 
 export const getEntryGroupAvgPace = (entryGroup: Entry[]) =>
-  Number(
-    (
-      entryGroup
-        .map(entry => getEntryPace(entry))
-        .reduce((acc, curr) => acc + curr) / entryGroup.length
-    ).toFixed(2)
-  );
+  entryGroup
+    .map(entry => getEntryPace(entry))
+    .reduce((acc, curr) => acc + curr) / entryGroup.length;
 
 export const getEntryGroupTotalPowerProduced = (entryGroup: Entry[]) =>
   entryGroup
@@ -46,30 +37,26 @@ export const getWeightCorrectedPace = (entry: Entry) =>
   getWeightCorrectedDistance(entry) / getWeightCorrectedTime(entry);
 
 export const getWeightCorrectedEntryAvgPowerOutput = (entry: Entry) =>
-  Number(
-    (2.8 / Math.pow(getWeightCorrectedTime(entry) / entry.distance, 3)).toFixed(
-      2
-    )
-  );
+  2.8 / Math.pow(getWeightCorrectedTime(entry) / entry.distance, 3);
 
 export const getWeightCorrectedEntryTotalPowerProduced = (entry: Entry) =>
-  Number(
-    (
-      getWeightCorrectedEntryAvgPowerOutput(entry) *
-      getWeightCorrectedTime(entry)
-    ).toFixed(0)
-  );
-export type EntryCalculations = {
-  pace: number;
-  avgPowerOutput: number;
-  totalPower: number;
+  getWeightCorrectedEntryAvgPowerOutput(entry) * getWeightCorrectedTime(entry);
+
+export type WeightCorrectedEntryCalculations = {
   wcTime: number;
   wcDistance: number;
   wcPace: number;
   wcAvgPowerOutput: number;
   wcTotalPower: number;
 };
+export type EntryCalculations = WeightCorrectedEntryCalculations & {
+  entry: Entry;
+  pace: number;
+  avgPowerOutput: number;
+  totalPower: number;
+};
 export const entryCalculations = (entry: Entry) => ({
+  entry,
   pace: getEntryPace(entry),
   avgPowerOutput: getEntryAvgPowerOutput(entry),
   totalPower: getEntryTotalPowerProduced(entry),
@@ -89,11 +76,27 @@ export const getEntryGroupAverageDistance = (entryGroup: Entry[]) =>
 export const getFastestEntry = (entryGroup: Entry[]) =>
   entryGroup.sort((a, b) => getEntryPace(b) - getEntryPace(a))[0];
 
+export const getHighestPowerOutputEntry = (entryGroup: Entry[]) =>
+  entryGroup
+    .map(entry => ({ entry, avgPowerOutput: getEntryAvgPowerOutput(entry) }))
+    .sort((a, b) => b.avgPowerOutput - a.avgPowerOutput)[0].entry;
+export const getMostPowerProducedEntry = (entryGroup: Entry[]) =>
+  entryGroup
+    .map(entry => ({
+      entry,
+      totalPowerProduced: getEntryTotalPowerProduced(entry),
+    }))
+    .sort((a, b) => b.totalPowerProduced - a.totalPowerProduced)[0].entry;
+
 export const entryGroupCalculations = (entryGroup: Entry[]) => ({
+  entryGroup,
   avgPowerOutput: getEntryGroupAvgPowerOutput(entryGroup),
   avgPace: getEntryGroupAvgPace(entryGroup),
   totalPowerProduced: getEntryGroupTotalPowerProduced(entryGroup),
   totalDistance: getEntryGroupTotalDistance(entryGroup),
   averageDistance: getEntryGroupAverageDistance(entryGroup),
   fastestEntry: getFastestEntry(entryGroup),
+  farthestEntry: getFarthestEntry(entryGroup),
+  highestPowerOutputEntry: getHighestPowerOutputEntry(entryGroup),
+  mostPowerProducedEntry: getMostPowerProducedEntry(entryGroup),
 });

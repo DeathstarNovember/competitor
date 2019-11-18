@@ -17,11 +17,11 @@ type UpdateEntryHrInfoFormValues = {
 const UpdateEntryHrInfo: React.FC<Props> = ({ entry, handleHrFormToggle }) => {
   const [updateEntryHrInfoMutation] = useMutation(UPDATE_ENTRY);
 
-  console.warn({ entry });
+  // console.warn({ entry });
   const { handleSubmit, register, errors } = useForm();
 
   const onSubmit = async (values: any) => {
-    console.warn({ values });
+    // console.warn({ values });
 
     const payload = {
       id: `${entry.id}`,
@@ -36,7 +36,7 @@ const UpdateEntryHrInfo: React.FC<Props> = ({ entry, handleHrFormToggle }) => {
       avgHr: Number(values.avgHr),
     };
 
-    console.warn({ payload });
+    // console.warn({ payload });
 
     try {
       const result = await updateEntryHrInfoMutation({

@@ -6,13 +6,13 @@ import { useMutation } from "@apollo/react-hooks";
 import {
   LIST_USERS,
   CREATE_FOLLOW_LINK,
-  DELETE_FOLLOW_LINK,
   DELETE_FOLLOW_LINK_W_USER_IDS,
 } from "../util";
 
 type GroupedEntryFeedProps = {
   entries: Entry[];
   currentUser: User;
+  changeDashboardDisplayOption: (arg0: number) => void;
 };
 
 const groupEntriesByDate = (arr: Entry[]) => {
@@ -42,41 +42,46 @@ type UserEntryGroupProps = {
   currentUser: User;
   entryGroup: Entry[];
   userKey: string;
+  changeDashboardDisplayOption: (arg0: number) => void;
 };
 const UserEntryGroup: React.FC<UserEntryGroupProps> = ({
   currentUser,
   entryGroup,
-  userKey,
+  changeDashboardDisplayOption,
 }) => {
   const entryGroupUser: User = entryGroup[0].user;
   const userLabel = `${entryGroupUser.firstName} ${entryGroupUser.lastName}`;
   const [createFollowMutation] = useMutation(CREATE_FOLLOW_LINK, {
     update(cache, { data: { createFollowLink } }) {
-      const cachedData: { listUsers: User[] } | null = cache.readQuery({
+      const cachedUsers: { listUsers: User[] } | null = cache.readQuery({
         query: LIST_USERS,
       });
-
-      const reuseableCachedUsers = cachedData
-        ? cachedData.listUsers.filter(
-            cachedUser =>
-              cachedUser.id !== currentUser.id ||
-              cachedUser.id !== createFollowLink.follower.id
-          )
-        : [];
-      const updatedUserFollows = {
-        ...currentUser,
-        follows: [
-          ...currentUser.follows,
-          { id: createFollowLink.followed.id, __typename: "User" },
-        ],
-      };
-      const newData = {
-        listUsers: [...reuseableCachedUsers, updatedUserFollows],
-      };
-      cache.writeQuery({
-        query: LIST_USERS,
-        data: newData,
-      });
+      if (cachedUsers) {
+        const reuseableCachedUsers = cachedUsers.listUsers.filter(
+          cachedUser =>
+            cachedUser.id !== currentUser.id ||
+            cachedUser.id !== createFollowLink.follower.id
+        );
+        const updatedUserFollows = {
+          ...currentUser,
+          follows: [
+            ...currentUser.follows,
+            {
+              id: createFollowLink.followed.id,
+              __typename: "User",
+              firstName: createFollowLink.followed.firstName,
+              lastName: createFollowLink.followed.lastName,
+            },
+          ],
+        };
+        const newData = {
+          listUsers: [...reuseableCachedUsers, updatedUserFollows],
+        };
+        cache.writeQuery({
+          query: LIST_USERS,
+          data: newData,
+        });
+      }
     },
   });
   const [deleteFollowMutation] = useMutation(DELETE_FOLLOW_LINK_W_USER_IDS, {
@@ -146,9 +151,9 @@ const UserEntryGroup: React.FC<UserEntryGroupProps> = ({
           <EntryPreview
             key={`${entry.user.id}${entryId}`}
             entry={entry}
-            entryId={entryId}
             mine={mine}
             currentUser={currentUser}
+            changeDashboardDisplayOption={changeDashboardDisplayOption}
           />
         ))}
       </div>
@@ -159,6 +164,7 @@ const UserEntryGroup: React.FC<UserEntryGroupProps> = ({
 const GroupedEntryFeed: React.FC<GroupedEntryFeedProps> = ({
   entries,
   currentUser,
+  changeDashboardDisplayOption,
 }) => {
   const dateGroupedEntries: { [key: string]: Entry[] } = groupEntriesByDate(
     entries
@@ -183,6 +189,7 @@ const GroupedEntryFeed: React.FC<GroupedEntryFeedProps> = ({
                   currentUser={currentUser}
                   entryGroup={userGroupedEntries[userKey]}
                   userKey={userKey}
+                  changeDashboardDisplayOption={changeDashboardDisplayOption}
                 />
               ))}
             </div>

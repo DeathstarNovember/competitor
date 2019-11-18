@@ -18,11 +18,11 @@ const UpdateEntry: React.FC<Props> = ({
 }) => {
   const [updateEntryMutation] = useMutation(UPDATE_ENTRY);
 
-  // console.warn({ entry });
+  console.warn({ entry });
   const { handleSubmit, register, errors } = useForm();
 
   const onSubmit = async (values: any) => {
-    // console.warn({ values });
+    console.warn({ values });
     const time =
       Number(values.duration_h) * 60 * 60 +
       Number(values.duration_m) * 60 +
@@ -95,7 +95,7 @@ const UpdateEntry: React.FC<Props> = ({
                 ref={register({
                   required: "Required",
                   pattern: {
-                    value: /^[1-9][0-9]+[.][0-9]$/i,
+                    value: /^[1-9][0-9]+[\.0-9]?$/i,
                     message: "ex 0.0",
                   },
                 })}
@@ -181,9 +181,8 @@ const UpdateEntry: React.FC<Props> = ({
                 name="maxHr"
                 defaultValue={`${entry.maxHr}`}
                 ref={register({
-                  required: "Required",
                   pattern: {
-                    value: /^[1-9][0-9]+$/i,
+                    value: /^([1-9][0-9]+)?$/i,
                     message: "ex 165",
                   },
                 })}
@@ -200,9 +199,8 @@ const UpdateEntry: React.FC<Props> = ({
                 name="avgHr"
                 defaultValue={`${entry.avgHr}`}
                 ref={register({
-                  required: "Required",
                   pattern: {
-                    value: /^[1-9][0-9]+$/i,
+                    value: /^([1-9][0-9]+)?$/i,
                     message: "ex 160",
                   },
                 })}
@@ -224,21 +222,21 @@ const UpdateEntry: React.FC<Props> = ({
             <div className="flex">
               <input
                 name="duration_h"
-                defaultValue={(entry.time / 60 / 60).toFixed(0)}
+                defaultValue={Math.floor(entry.time / 60 / 60).toFixed()}
                 ref={register({})}
                 className="shadow appearance-none border rounded w-full mr-2 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300"
                 placeholder="0 Hours"
               />
               <input
                 name="duration_m"
-                defaultValue={(entry.time / 60).toFixed(0)}
+                defaultValue={Math.floor(entry.time / 60).toFixed()}
                 ref={register({})}
                 className="shadow appearance-none border rounded w-full mr-2 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300"
                 placeholder="Minutes"
               />
               <input
                 name="duration_s"
-                defaultValue={(entry.time % 60).toFixed(0)}
+                defaultValue={(entry.time % 60).toFixed()}
                 ref={register({})}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline border-blue-300"
                 placeholder="Seconds"

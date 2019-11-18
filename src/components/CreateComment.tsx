@@ -1,7 +1,8 @@
 import React from "react";
 import { useMutation } from "@apollo/react-hooks";
 import useForm from "react-hook-form";
-import { User, Entry, Visibility } from "../types";
+import { User, Entry } from "../types";
+import { Visibility } from "../enums";
 import { LIST_ENTRIES, CREATE_COMMENT } from "../util";
 import { ExecutionResult } from "graphql";
 import { MdComment } from "react-icons/md";
@@ -33,7 +34,10 @@ const CreateComment: React.FC<Props> = ({
                 ),
                 {
                   ...entry,
-                  comments: [...entry.comments, createComment],
+                  comments: [
+                    ...entry.comments,
+                    { ...createComment, __typename: "Comment" },
+                  ],
                 },
               ]
             : "No Data",
@@ -54,6 +58,7 @@ const CreateComment: React.FC<Props> = ({
         entryId: entry.id,
         body: values.body,
         visibility: Visibility.PUBLIC,
+        __typename: "Comment",
       };
       // console.warn({ payload });
       try {

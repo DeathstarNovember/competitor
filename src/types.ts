@@ -1,3 +1,12 @@
+import {
+  Visibility,
+  ObjectiveTypes,
+  InviteStatus,
+  ChallengeStatus,
+  ResultTypes,
+  AchievementTypes,
+} from "./enums";
+
 export type Follow = {
   id: number;
   followerId: number;
@@ -5,6 +14,8 @@ export type Follow = {
 };
 export type UserFollow = {
   id: number;
+  firstName: string;
+  lastName: string;
   __typename: string;
 };
 export type User = {
@@ -21,17 +32,16 @@ export type User = {
   biology: string;
   followers: UserFollow[];
   follows: UserFollow[];
+  invitations?: ChallengeInvite[];
+  challenges?: Challenge[];
+  achievements: Achievement[];
 };
+
 export type Like = {
   id: number;
   userId: number;
   entryId: number;
 };
-
-export enum Visibility {
-  PUBLIC,
-  PRIVATE,
-}
 export type Comment = {
   id: number;
   user: { id: number; firstName: string };
@@ -55,39 +65,41 @@ export type Entry = {
   completedAt: string;
   maxHr?: number;
   avgHr?: number;
+  invitations?: ChallengeInvite[];
+  achievement?: Achievement;
 };
 
-// type Result = {
-//   rank: number;
-//   competitorId: number;
-//   entries: ContestEntry[];
-// };
+export type ChallengeObjective = {
+  id: number;
+  objectiveType: ObjectiveTypes;
+  resultType: ResultTypes;
+  value: number;
+  challenge: { id: number };
+};
 
-export enum Metrics {
-  Distance, // m
-  Time, // s
-}
-
-type Contest = {
-  name: string;
-  metric: Metrics;
-  objective: number;
+export type ChallengeInvite = {
+  id: number;
+  invitee: User;
+  status: InviteStatus;
+  response: Entry;
+  challenge: { id: number };
+};
+export type Challenge = {
+  id: number;
+  moderator: User;
+  invitations: ChallengeInvite[];
+  status: ChallengeStatus;
+  objective: ChallengeObjective;
+  startDate: string;
+  duration: number;
+  name?: string;
+  endDate?: string;
   description?: string;
 };
 
-// enum IntervalTypes {
-//   Seconds,
-//   Minutes,
-//   Hours,
-//   Days,
-//   Weeks,
-//   Months,
-//   Years,
-// }
-
-// export type Comp = {
-//   name: string;
-//   active: Boolean;
-//   contests: Contest[];
-//   competitors: Competitor[];
-// };
+export type Achievement = {
+  id: number;
+  user: User;
+  entry: Entry;
+  achievementType: AchievementTypes;
+};
