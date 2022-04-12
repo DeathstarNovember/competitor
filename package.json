@@ -1,5 +1,6 @@
 {
   "name": "web",
+  "description": "Web client for competition API",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
